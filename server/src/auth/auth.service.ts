@@ -38,7 +38,7 @@ export class AuthService{
 
     }
 
-    async login(props: LoginUserDto): Promise<IUser & Promise<Tokens>> {
+    async login(props: LoginUserDto): Promise<IUser & Tokens> {
         const user: IUser = await this.userModel.findOne({email: props.email})
         if(!user){
             throw new BadRequestException("Пользователь с таким email не найден")
@@ -48,7 +48,7 @@ export class AuthService{
             throw new BadRequestException("Неверный пароль")
         }
         const tokenHash = uuidv4();
-        const tokens = this.generateTokens({
+        const tokens = await this.generateTokens({
             userID: user._id,
             tokenHash
         })
@@ -63,7 +63,12 @@ export class AuthService{
     }
 
     private async generateTokens(payload: TokenPayload): Promise<Tokens>{
-        await this.tokenModel.updateOne({userID: payload.userID}, {tokenHash: payload.tokenHash})
+        const token = await this.tokenModel.findOne({userID: payload.userID})
+        if(!token){
+            await this.tokenModel.create(payload)
+        } else {
+            await this.tokenModel.updateOne({userID: payload.userID}, {tokenHash: payload.tokenHash})
+        }
         const accessToken = this.jwtService.sign(payload, {secret: process.env.ACCESS_SECRET, expiresIn: '30m'})
         const refreshToken = this.jwtService.sign(payload, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
         return {
@@ -71,7 +76,6 @@ export class AuthService{
             refreshToken
         }
     }
-
 
     private async validateRefrashToken(refreshToken: string): Promise<IUser & Tokens>{
         try {
