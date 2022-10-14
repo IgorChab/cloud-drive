@@ -1,0 +1,60 @@
+.rightSideContainer{
+    padding: 30px 15px;
+}
+
+.userInfo{
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 20px;
+    color: rgba(0, 0, 0, 0.85);
+    gap: 12px;
+    line-height: 28px;
+}
+
+.settings{
+    font-weight: 400;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.45);
+}
+
+.typeFile{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: rgba(0, 0, 0, 0.45);
+    font-weight: 400;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+.rightSideGroupTitle{
+    font-weight: 500;
+    color: #595959;
+}
+
+.typeFileItem{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.typeFileItemInner{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.seeAll:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.pinnedDrive{
+    margin-top: 30px;
+    overflow-y: auto;
+}
+
+.pinnedItem{
+    height: 100%;
+}

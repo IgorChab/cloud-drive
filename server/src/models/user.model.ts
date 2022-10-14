@@ -19,6 +19,9 @@ export class User {
 
     @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'File'})
     files: [number]
+
+    @Prop({default: 2147483648})
+    availableSpace: number
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

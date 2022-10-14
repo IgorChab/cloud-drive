@@ -4,13 +4,13 @@ import {CreateUserDto, LoginUserDto} from "../dto/user.dto";
 import {AuthGuard} from "./auth.guard";
 
 
-@Controller()
+@Controller('auth')
 export class AuthController{
     constructor(private authService: AuthService) {}
-    @Post()
+    @Post('register')
     async registration(
-        @Body() createUserDto: CreateUserDto, @Res({ passthrough: true }) response){
-        return await this.authService.register(createUserDto)
+        @Body() createUserDto: CreateUserDto){
+        const user = await this.authService.register(createUserDto)
     }
 
     @Post('login')

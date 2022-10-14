@@ -1,3 +1,4 @@
+import {Tokens} from '../interfaces/token.interface'
 export interface IUser{
     _id: string
     firstName: string
@@ -11,4 +12,10 @@ export interface UserCreationAttr{
     lastName: string,
     email: string,
     password: string
+}
+
+export interface UserData {
+    user: IUser
+    accessToken: string
+    refreshToken: string
 }

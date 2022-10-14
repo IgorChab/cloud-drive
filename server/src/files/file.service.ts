@@ -6,6 +6,7 @@ import {Model} from "mongoose";
 import {File, FileDocument} from "../models/file.model";
 import {FileCreationDto} from "../dto/file.dto";
 import {InjectModel} from "@nestjs/mongoose";
+import {FolderDto} from "../dto/folder.dto";
 
 @Injectable()
 export class FileService {
@@ -19,18 +20,20 @@ export class FileService {
         })
     }
 
-    async addFolder(props){
-        fs.mkdir(path.resolve(__dirname, `${props.name}`),(err) => {
+    async addFolder(folderDto: FolderDto){
+        fs.mkdir(path.resolve(__dirname, '../..', 'storage',`${folderDto.currentDir}`,`${folderDto.folderName}`),(err) => {
             console.log(err)
         })
-        return await this.fileModel.create(props)
+        // return await this.fileModel.create(folderDto)
     }
 
     async addFile(file, userID){
+        const index = file.path.indexOf("\storage");
+        const path = file.path.slice(index)
         return await this.fileModel.create({
             name: file.originalname,
             type: file.mimetype,
-            path: file.path,
+            path,
             userID: userID,
             size: file.size
         })

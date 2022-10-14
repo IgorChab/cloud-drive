@@ -1,0 +1,23 @@
+.folderDesc{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: -10px;
+}
+.folderName{
+    font-weight: 500;
+    font-size: 20px;
+    color: rgba(0, 0, 0, 0.85);
+}
+.folderItems{
+    font-weight: 700;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.45);
+}
+.folderSpace{
+    font-weight: 700;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.25);
+    text-transform: uppercase;
+}

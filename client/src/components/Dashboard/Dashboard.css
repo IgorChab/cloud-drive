@@ -1,0 +1,27 @@
+.container{
+    height: 100%;
+}
+
+.flex{
+    display: flex;
+    justify-content: center;
+    height: 100%;
+}
+
+.leftSide{
+    background: #F5F5F5;
+    box-shadow: inset -1px 0 0 #F0F0F0;
+}
+
+.main{
+    background-color: #fff;
+    height: 100%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.rightSide{
+    background-color: #fff;
+    border-left: 1px solid #F0F0F0;
+}

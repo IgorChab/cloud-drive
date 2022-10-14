@@ -2,7 +2,7 @@ import {Injectable, BadRequestException, UnauthorizedException} from '@nestjs/co
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose'
 import {User, UserDocument} from "../models/user.model";
-import {IUser, UserCreationAttr} from "../interfaces/user.interface";
+import {IUser, UserCreationAttr, UserData} from "../interfaces/user.interface";
 
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
@@ -35,10 +35,9 @@ export class AuthService{
 
     async getAllUsers(): Promise<IUser[]> {
         return this.userModel.find()
-
     }
 
-    async login(props: LoginUserDto): Promise<IUser & Tokens> {
+    async login(props: LoginUserDto): Promise<UserData> {
         const user: IUser = await this.userModel.findOne({email: props.email})
         if(!user){
             throw new BadRequestException("Пользователь с таким email не найден")
@@ -54,7 +53,7 @@ export class AuthService{
         })
         return {
             ...tokens,
-            ...user
+            user
         }
     }
 
@@ -69,7 +68,7 @@ export class AuthService{
         } else {
             await this.tokenModel.updateOne({userID: payload.userID}, {tokenHash: payload.tokenHash})
         }
-        const accessToken = this.jwtService.sign(payload, {secret: process.env.ACCESS_SECRET, expiresIn: '30m'})
+        const accessToken = this.jwtService.sign(payload, {secret: process.env.ACCESS_SECRET, expiresIn: '1m'})
         const refreshToken = this.jwtService.sign(payload, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
         return {
             accessToken,
