@@ -9,7 +9,8 @@ import { useNavigate, Link } from 'react-router-dom';
 
 import {useLoginMutation } from '../../app/services/auth'
 import { useAppDispatch } from '../../hooks/redux';
-import { setCredentials } from '../../features/auth/authSlice';
+import { setCredentials } from '../../features/user/userSlice';
+import { setStorageInfo } from '../../features/files/fileSlice';
 
 type TransitionProps = Omit<SlideProps, 'direction'>;
 
@@ -77,6 +78,10 @@ const LoginForm: FC = () => {
                     password: password 
                 }).unwrap().then((userData) => {
                     dispatch(setCredentials(userData))
+                    // dispatch(setStorageInfo({
+                    //     currentFolder: userData.user._id, 
+                    //     files: userData.user.files,
+                    // }))
                     navigate('/dashboard')
                 })
             } catch (e) {

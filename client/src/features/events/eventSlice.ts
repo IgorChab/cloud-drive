@@ -1,4 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
+import {File} from '../../interfaces/user.interface'
+
 import React from 'react';
 
 type ModalWindowType = 'create' | 'rename'
@@ -15,8 +17,9 @@ interface Coords {
 
 interface InitialState {
     modal: ModalWindow
-    dataGrid: boolean
+    dataList: boolean
     contextMenu: Coords
+    currentFile: File
 }
 
 
@@ -26,15 +29,16 @@ const eventSlice = createSlice({
             open: false,
             type: 'create'
         },
-        dataGrid: false,
+        dataList: false,
         contextMenu: {
             mouseX: null,
             mouseY: null,
-        }
+        },
+        currentFile: {}
     } as InitialState,
     name: 'event',
     reducers: {
-        openModal: (state, {payload: type}:PayloadAction<ModalWindowType>) => {
+        openModal: (state, {payload: type}: PayloadAction<ModalWindowType>) => {
             state.modal.open = true
             state.modal.type = type
         },
@@ -42,22 +46,14 @@ const eventSlice = createSlice({
             state.modal.open = false
         },
         switchFileContainer: (state) => {
-            state.dataGrid = !state.dataGrid
+            state.dataList = !state.dataList
         },
-        // openContextMenu: (state, {payload: event}:PayloadAction<React.MouseEvent<HTMLDivElement>>) => {
-        //     event.preventDefault();
-        //     state.contextMenu.mouseX = event.clientX - 2 
-        //     state.contextMenu.mouseY = event.clientY - 4
-        // },
-        // closeContextMenu: (state) => {
-        //     state.contextMenu.mouseX = null
-        //     state.contextMenu.mouseY = null
-        // }
+        setCurrentFile: (state, {payload: file}: PayloadAction<File>) => {
+            state.currentFile = file
+        }
     }
 })
 
 export default eventSlice.reducer
 
-export const {closeModal, openModal, switchFileContainer,
-    //  closeContextMenu, openContextMenu
-    } = eventSlice.actions
+export const {closeModal, openModal, switchFileContainer, setCurrentFile} = eventSlice.actions

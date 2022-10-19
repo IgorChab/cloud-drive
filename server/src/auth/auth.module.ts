@@ -9,6 +9,7 @@ import {FileService} from "../files/file.service";
 import {FileModule} from "../files/file.module";
 import {File, FileSchema} from "../models/file.model";
 import {AuthGuard} from "./auth.guard";
+import {Folder, FolderSchema} from "../models/folder.model";
 
 @Module({
     imports: [
@@ -16,6 +17,7 @@ import {AuthGuard} from "./auth.guard";
             {name: User.name, schema: UserSchema},
             {name: Token.name, schema: TokenSchema},
             {name: File.name, schema: FileSchema},
+            {name: Folder.name, schema: FolderSchema}
         ]),
         JwtModule.register({}),
     ],

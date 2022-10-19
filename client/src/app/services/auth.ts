@@ -5,20 +5,9 @@ import type {
     FetchBaseQueryError,
   } from '@reduxjs/toolkit/query'
 
-import { setCredentials, logout } from '../../features/auth/authSlice';
+import { setCredentials, logout } from '../../features/user/userSlice';
 import {RootState} from "../store";
-
-export interface User {
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-}
-
-export interface UserRes {
-    user: User
-    accessToken: string
-}
+import {User, UserRes} from '../../interfaces/user.interface'
 
 interface registerReq {
     firstName: string
@@ -32,10 +21,9 @@ interface loginReq {
     password: string
 }
 
-
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/auth',
-    credentials: 'same-origin',
+    baseUrl: 'http://localhost:5000/',
+    credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
         // By default, if we have a token in the store, let's use that for authenticated requests
         const token = (getState() as RootState).auth.accessToken
@@ -46,17 +34,12 @@ const baseQuery = fetchBaseQuery({
     },
 })
 
-const baseQueryWithReauth: BaseQueryFn<FetchArgs | string, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
+export const baseQueryWithReauth: BaseQueryFn<FetchArgs | string, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions)
-    console.log(result)
-    console.log('args ==>', args)
-    console.log('api ==>', api)
-    console.log('extraOptions ==>', extraOptions)
     if (result?.error?.status === 401) {
         console.log('sending refresh token')
         // send refresh token to get new access token 
-        const refreshResult = await baseQuery('/refresh', api, extraOptions)
-        console.log(refreshResult)
+        const refreshResult = await baseQuery('auth/refresh', api, extraOptions)
         if (refreshResult?.data) {
             // store the new token 
             //@ts-ignore
@@ -77,25 +60,25 @@ export const authApi = createApi({
     endpoints: build => ({
         register: build.mutation<void, registerReq>({
             query: (userData) => ({
-                url: '/register',
+                url: 'auth/register',
                 method: 'post',
                 body: userData
             })
         }),
         login: build.mutation<UserRes, loginReq>({
             query: (userData) => ({
-                url: '/login',
+                url: 'auth/login',
                 method: 'POST',
                 body: userData
             })
         }),
-        getUsers: build.query({
+        checkAuth: build.query<UserRes, void>({
             query: () => ({
-                url: '/users',
-                method: 'GET'
+                url: 'auth/refresh',
+                method: 'get'
             })
         })
     })
 })
 
-export const { useRegisterMutation, useLoginMutation, useGetUsersQuery } = authApi
+export const { useRegisterMutation, useLoginMutation, useCheckAuthQuery } = authApi

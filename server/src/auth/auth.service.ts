@@ -68,7 +68,7 @@ export class AuthService{
         } else {
             await this.tokenModel.updateOne({userID: payload.userID}, {tokenHash: payload.tokenHash})
         }
-        const accessToken = this.jwtService.sign(payload, {secret: process.env.ACCESS_SECRET, expiresIn: '1m'})
+        const accessToken = this.jwtService.sign(payload, {secret: process.env.ACCESS_SECRET, expiresIn: '30m'})
         const refreshToken = this.jwtService.sign(payload, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
         return {
             accessToken,
@@ -76,7 +76,7 @@ export class AuthService{
         }
     }
 
-    private async validateRefrashToken(refreshToken: string): Promise<IUser & Tokens>{
+    private async validateRefrashToken(refreshToken: string): Promise<UserData>{
         try {
             const tokenPayload: TokenPayload = this.jwtService.verify(refreshToken, {secret: process.env.REFRESH_SECRET})
             const existHash = await this.tokenModel.findOne({tokenHash: tokenPayload.tokenHash})
@@ -88,9 +88,9 @@ export class AuthService{
                 tokenHash: tokenHash,
                 userID: tokenPayload.userID
             })
-            const user: IUser = await this.userModel.findById(tokenPayload.userID)
+            const user: IUser = await this.userModel.findById(tokenPayload.userID).populate('files')
             return {
-                ...user,
+                user,
                 ...tokens
             }
         } catch (e) {

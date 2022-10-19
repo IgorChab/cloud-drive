@@ -92,7 +92,7 @@ const RegisterForm: FC = () => {
                     lastName: surname,
                     email: email,
                     password: password 
-                }).then(() => {if(data) navigate('/login')})
+                }).then(() => {navigate('/login')})
             } catch (e) {
                 console.log(e)
             }

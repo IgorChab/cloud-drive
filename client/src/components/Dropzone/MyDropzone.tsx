@@ -1,29 +1,51 @@
-import React, {FC, PropsWithChildren, useCallback, useState} from 'react'
+import React, {FC, useCallback, useState} from 'react'
 import {useDropzone} from 'react-dropzone'
-import {DataGrid} from '../DataGrid/DataGrid';
+import {DataList} from '../DataList/DataList';
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux';
 import { openModal } from '../../features/events/eventSlice';
 import {Grid, Menu, MenuItem, makeStyles} from "@material-ui/core";
 import Folder from "../Folder/Folder";
 import {AiOutlineCloudUpload, AiOutlineFolderAdd} from "react-icons/ai";
 import './MyDropzone.css'
-export const MyDropzone: FC<PropsWithChildren> = ({children}) => {
+import { useUploadFilesMutation } from '../../app/services/fileService';
+import { setStorageInfo, setFiles } from '../../features/files/fileSlice';
+import { FileCard } from '../File/FileCard';
+export const MyDropzone: FC = () => {
 
-  const onDrop = useCallback((acceptedFiles: any) => {
-    console.log(acceptedFiles)
-  }, [])
+    const [uploadFiles, {isLoading, isError, data}] = useUploadFilesMutation()
 
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop, noClick: true})
+    const user = useTypedSelector(state => state.auth.user)
+    const files = useTypedSelector(state => state.storage.files)
+    console.log('uploded files ===>>>', files)
 
-  const dispatch = useAppDispatch()
+    const currentFolder = useTypedSelector(state => state.storage.currentFolder)
+    console.log(currentFolder)
 
-    const modal = useTypedSelector(state => state.event.modal)
-    const dataGrid = useTypedSelector(state => state.event.dataGrid)
+    const handleUpload = useCallback(async (acceptedFiles: any) => {
+        console.log(acceptedFiles)
+        const formData = new FormData()
+        //@ts-ignore
+        formData.append('currentFolder', currentFolder)
+        acceptedFiles.forEach((file: any) => {
+            formData.append('files', file)
+        });
+        uploadFiles(formData)
+        if(data){
+            dispatch(setFiles(data))
+        }
+        // const totalSize = acceptedFiles.reduce((acc: number, file: any) => acc + file.size, 0)
+    }, [])
+
+    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop: handleUpload, noClick: true})
+
+    const dispatch = useAppDispatch()
+
+    const dataList = useTypedSelector(state => state.event.dataList)
 
     const initialState = {
         mouseX: null,
         mouseY: null,
-      };
+    };
       
     const [state, setState] = React.useState<{
         mouseX: null | number;
@@ -50,50 +72,47 @@ export const MyDropzone: FC<PropsWithChildren> = ({children}) => {
 
     const classes = useStyles()
 
-    const [folders, setFolders] = useState([
-        {id: 1, name: 'Slides', items: 12, space: '100mb'}
-    ])
-
   return (
-    <div className={`default ${isDragActive? 'borderAnimate' : ''}`}>
-      {dataGrid
-            ? <DataGrid folders={folders}/> 
-            :
-            <Grid container wrap={"wrap"} className='foldersContainer' onContextMenu={handleClick} {...getRootProps()}>
-                <Menu
-                    keepMounted
-                    open={state.mouseY !== null}
-                    onClose={handleClose}
-                    anchorReference="anchorPosition"
-                    anchorPosition={
-                    state.mouseY !== null && state.mouseX !== null
-                        ? { top: state.mouseY, left: state.mouseX }
-                        : undefined
-                    }
-                >
-                    <MenuItem className={classes.root} onClick={() => {handleClose(); dispatch(openModal('create'))}}>
-                        <AiOutlineFolderAdd/>
-                        Create folder
-                    </MenuItem>
-                    <MenuItem className={classes.root}>
-                        <label htmlFor='uploadFile' className='uploadInput'>
-                            <AiOutlineCloudUpload/>
-                            Upload files
-                        </label>
-                        <input type='file' id='uploadFile' hidden {...getInputProps()}/>
-                    </MenuItem>
-                </Menu>
-                {folders.map(folder => (
-                    <Folder items={folder.items} name={folder.name} space={folder.space} key={folder.id}/>
-                ))}
-                {isDragActive
-                  ? <div className='hintUpload'>
-                      Drop here to upload file
-                    </div>
-                  : ''
+    <div className={`relative ${isDragActive? 'borderAnimate' : ''}`}>
+        <Grid container wrap={"wrap"} className='foldersContainer' onContextMenu={handleClick} {...getRootProps()}>
+            <Menu
+                keepMounted
+                open={state.mouseY !== null}
+                onClose={handleClose}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                state.mouseY !== null && state.mouseX !== null
+                    ? { top: state.mouseY, left: state.mouseX }
+                    : undefined
                 }
-            </Grid>
-        }
+            >
+                <MenuItem className={classes.root} onClick={() => {handleClose(); dispatch(openModal('create'))}}>
+                    <AiOutlineFolderAdd/>
+                    Create folder
+                </MenuItem>
+                <MenuItem className={classes.root}>
+                    <label htmlFor='uploadFile' className='flex gap-[10px] items-center'>
+                        <AiOutlineCloudUpload/>
+                        Upload files
+                    </label>
+                    <input type='file' id='uploadFile' hidden {...getInputProps()}/>
+                </MenuItem>
+            </Menu>
+            {dataList
+                ? <DataList files={files}/> 
+                : files.map(file => (
+                    file.type == 'dir'
+                    ? <Folder file={file} key={file?._id}/>
+                    : <FileCard file={file} key={file?._id}/>
+                ))
+            }
+            {isDragActive
+                ? <div className='hintUpload'>
+                    Drop here to upload file
+                </div>
+                : ''
+            }
+        </Grid>
     </div>
   )
 }

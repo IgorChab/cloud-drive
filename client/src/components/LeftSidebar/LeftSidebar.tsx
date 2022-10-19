@@ -8,15 +8,22 @@ import {
     AiOutlineDelete,
     AiOutlineCloud
 } from "react-icons/ai";
-import { Button } from '@material-ui/core';
+import { useTypedSelector } from '../../hooks/redux';
 
 const LeftSidebar = () => {
+
+    const user = useTypedSelector(state => state.auth.user)
+    const storage = useTypedSelector(state => state.storage)
+    
+    const availableSpace: any= useTypedSelector(state => state.auth.user?.availableSpace)
+    const usedSpace: any = useTypedSelector(state => state.auth.user?.usedSpace)
+
     return (
-        <div className='container'>
-            <p className='logo'>Virtual Drive</p>
-            <div className='menu'>
-                <div className="group">
-                    <p className='groupTitle'>Drive Storage</p>
+        <div className='w-full'>
+            <p className='text-center text-[#1890FF] font-medium text-lg p-[15px_10px]'>Virtual Drive</p>
+            <div>
+                <div>
+                    <p className='groupTitle mb-2'>Drive Storage</p>
                     <div className='groupItem active'>
                         <AiOutlineFolderOpen/>
                         <p>My Drive</p>
@@ -26,22 +33,22 @@ const LeftSidebar = () => {
                         <p>Shared with me</p>
                     </div>
                 </div>
-                <div className="group">
+                <div>
                     <p className='groupTitle'>Tags</p>
                     <div className='groupItem'>
-                        <div className="circle red"></div>
+                        <div className="circle bg-red-500"></div>
                         <p>Red</p>
                     </div>
                     <div className='groupItem'>
-                        <div className="circle yellow"></div>
+                        <div className="circle bg-yellow-300"></div>
                         <p>Yellow</p>
                     </div>
                     <div className='groupItem'>
-                        <div className="circle blue"></div>
+                        <div className="circle bg-blue-400"></div>
                         <p>Blue</p>
                     </div>
                     <div className='groupItem'>
-                        <div className="circle green"></div>
+                        <div className="circle bg-green-400"></div>
                         <p>Green</p>
                     </div>
                     <div className='groupItem'>
@@ -49,7 +56,7 @@ const LeftSidebar = () => {
                         <p>Add more tags</p>
                     </div>
                 </div>
-                <div className="group">
+                <div>
                     <p className='groupTitle'>More</p>
                     <div className='groupItem'>
                         <AiOutlineClockCircle/>
@@ -60,15 +67,15 @@ const LeftSidebar = () => {
                         <p>Trash</p>
                     </div>
                 </div>
-                <div className="group devider">
-                    <div className="groupTitle groupTitle_flex">
+                <div className="border-t border-t-[#D9D9D9] pt-3">
+                    <div className="groupTitle flex items-center gap-3 mb-2">
                         <AiOutlineCloud size={24}/>
                         <p>Storage</p>
                     </div>
                     <div className="discStorage">
-                        <p className='usedSpace'>1.18 GB of 50 GB</p>
-                        <div className="progressBar">
-                            <div className="progressInner"></div>
+                        <p className='text-black/[85] text-sm font-normal'>{(usedSpace/(1024**3)).toFixed(2)} GB of {(availableSpace/(1024**3)).toFixed(2)} GB</p>
+                        <div className="bg-[#D9D9D9] rounded-[100px] w-full h-2">
+                            <div className="bg-[#1890FF] rounded-[100px] w-[10%] h-2 " style={{width: `${(usedSpace*100/availableSpace).toFixed(2)}%`}}></div>
                         </div>
                     </div>
                 </div>

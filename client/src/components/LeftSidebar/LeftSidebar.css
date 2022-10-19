@@ -1,101 +1,15 @@
-.logo{
-    text-align: center;
-    color: #1890FF;
-    font-weight: 500;
-    font-size: 18px;
-    padding: 20px 16px;
-}
-
-.container{
-    width: 100%;
-}
-
-.groupTitle{
-    font-weight: 500;
-    font-size: 14px;
-    color: #595959;
-    padding-left: 16px;
-    line-height: 22px;
-    margin-bottom: 10px;
-}
-
-.groupTitle_flex{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.groupItem{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px 16px;
-    cursor: pointer;
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 14px;
-    font-weight: 400;
-}
-
+.groupTitle {
+    @apply font-medium text-sm text-[#595959] pl-4; 
+  }
+.groupItem {
+    @apply flex items-center gap-3 p-[13px_16px] cursor-pointer text-black/[45] text-sm font-normal;
+  }
 .active{
-    background: #BFBFBF;
-    box-shadow: inset -3px 0 0 #5F5F5F;
-    color: #262626;
-}
-
+    @apply bg-[#BFBFBF] !shadow-[inset_-3px_0_0_#5F5F5F] text-[#262626];
+  }
 .circle{
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-}
-
-.red{
-    background: #FF4D4F;
-}
-
-.yellow{
-    background: #FADB14;
-}
-
-.blue{
-    background: #40A9FF;
-}
-
-.green{
-    background: #52C41A;
-}
-
+    @apply w-4 h-4 rounded-[50%]
+  }
 .discStorage{
-    padding: 0 16px;
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 14px;
-    font-weight: 400;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.usedSpace{
-    color: rgba(0, 0, 0, 0.85);
-    font-size: 14px;
-    font-weight: 400;
-}
-
-.progressBar{
-    background: #D9D9D9;
-    border-radius: 100px;
-    width: 100%;
-    height: 6px;
-}
-
-.progressInner{
-    background: #1890FF;
-    border-radius: 100px;
-    width: 10%;
-    height: 6px;
-}
-
-.devider{
-    border-top: 1px solid #D9D9D9;
-    padding-top: 20px;
-}
+    @apply px-4 text-black/[45] text-sm font-normal flex flex-col gap-[10px]
+  }

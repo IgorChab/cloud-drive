@@ -8,8 +8,7 @@ import {AuthGuard} from "./auth.guard";
 export class AuthController{
     constructor(private authService: AuthService) {}
     @Post('register')
-    async registration(
-        @Body() createUserDto: CreateUserDto){
+    async registration(@Body() createUserDto: CreateUserDto){
         const user = await this.authService.register(createUserDto)
     }
 
@@ -36,11 +35,5 @@ export class AuthController{
         })
         delete userData.refreshToken
         return userData
-    }
-
-    @Get('users')
-    @UseGuards(AuthGuard)
-    getAllUsers(){
-        return this.authService.getAllUsers()
     }
 }

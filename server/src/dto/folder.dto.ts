@@ -1,4 +1,4 @@
 export class FolderDto {
-    currentDir: string
+    currentFolder: string
     folderName: string
 }

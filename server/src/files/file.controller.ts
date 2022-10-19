@@ -1,8 +1,14 @@
-import {Body, Controller, Get, Post, Req, UploadedFile, UploadedFiles, UseGuards, UseInterceptors} from '@nestjs/common'
+import {
+    Body, 
+    Controller, 
+    Get, Post, Delete,
+    Req, Param,
+    UploadedFiles, 
+    UseGuards, 
+    UseInterceptors} from '@nestjs/common'
 import {AuthGuard} from "../auth/auth.guard";
 import {FileService} from "./file.service";
-import {FileCreationDto} from "../dto/file.dto";
-import {FileInterceptor, FilesInterceptor} from "@nestjs/platform-express";
+import {FilesInterceptor} from "@nestjs/platform-express";
 import {FolderDto} from "../dto/folder.dto";
 
 @Controller('files')
@@ -10,16 +16,25 @@ import {FolderDto} from "../dto/folder.dto";
 export class FileController {
     constructor(private fileService: FileService) {}
 
-    @Post('create')
+    @Post('uploadFiles')
     @UseInterceptors(FilesInterceptor('files'))
-    async uploadFiles(@UploadedFiles() file: Express.Multer.File, @Req() req){
-        console.log(file)
-        return await this.fileService.addFile(file, req.userID)
+    async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Req() req){
+        console.log('body',req.body)
+        return await this.fileService.uploadFiles(files, req.userID, req.body.currentFolder)
     }
 
-    @Post('addDir')
-    async createDir(@Body() folderDto: FolderDto){
-        await this.fileService.addFolder(folderDto)
-        return "created dir"
+    @Post('createFolder')
+    async createFolder(@Body() folderDto: FolderDto, @Req() req){
+        return await this.fileService.createFolder(folderDto, req.userID)
     }
+
+    @Delete('deleteFile/:id')
+    async deleteFile(@Param('id') fileID: string) {
+        this.fileService.deleteFile(fileID) 
+    }
+
+    // @Delete('deleteFolder/:id')
+    // async deleteFolder(@Param('id') folderID: string) {
+    //     this.fileService.deleteFolder(folderID)
+    // }
 }

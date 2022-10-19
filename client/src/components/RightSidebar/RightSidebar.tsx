@@ -5,8 +5,11 @@ import {AiOutlineFileImage, AiOutlineFilePdf, AiOutlineFileUnknown} from "react-
 import {Grid} from "@material-ui/core";
 import PinnedFolder from "../PinnedFolder/PinnedFolder";
 import {useDrop} from 'react-dnd'
+import { useTypedSelector } from '../../hooks/redux';
 
 const RightSidebar = () => {
+
+    const user = useTypedSelector(state => state.auth.user)
 
     const [pinnedFolders, setPinnedFolders] = useState([])
 
@@ -21,16 +24,16 @@ const RightSidebar = () => {
  
 
     return (
-        <div className='rightSideContainer'>
-            <div className="userInfo">
+        <div className='p-[30px_15px]'>
+            <div className="flex items-center font-medium text-[20px] text-black/[85] gap-3 leading-7">
                 <BackgroundLetterAvatars fullName='Igor Chabanchuk'/>
                 <div>
-                    <p>Hi, Igor</p>
-                    <p className='settings'>Profile Settings</p>
+                    <p>Hi, {user?.firstName}</p>
+                    <p className='font-normal text-sm text-black/[45%]'>Profile Settings</p>
                 </div>
             </div>
-            <div className="typeFile">
-                <p className="rightSideGroupTitle">Type File</p>
+            <div className="flex flex-col gap-[15px] font-normal text-black/[45] text-sm mt-5">
+                <p className="font-medium text-[#595959] ">Type File</p>
                 <div className="typeFileItem">
                     <div className='typeFileItemInner'>
                         <AiOutlineFileImage/>
@@ -53,12 +56,12 @@ const RightSidebar = () => {
                     <p className="seeAll">See all</p>
                 </div>
             </div>
-            <div className="pinnedDrive">
-                <p className="rightSideGroupTitle">Pinned Folder</p>
-                <div className="pinnedItem" ref={dropRef}>
+            <div className="mt-[30px]">
+                <p className="font-medium text-[#595959] text-sm">Pinned Folder</p>
+                <div className="h-full" ref={dropRef}>
                     {pinnedFolders.map(folder => (
                         //@ts-ignore
-                        <PinnedFolder items={folder.items} name={folder.name} space={folder.space}/>
+                        <PinnedFolder items={folder.childs.length} name={folder.name} space={folder.size}/>
                     ))}
                     <PinnedFolder preview={true}/>
                 </div>

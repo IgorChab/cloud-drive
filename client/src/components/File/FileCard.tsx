@@ -1,27 +1,24 @@
-import React, {FC} from 'react';
-import {FcFolder} from "react-icons/fc";
+import React, { FC } from 'react'
+import { File } from '../../interfaces/user.interface'
 import {Grid, Menu, MenuItem, makeStyles} from "@material-ui/core";
-import {useDrag} from 'react-dnd'
-import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags} from 'react-icons/ai'
+import {
+    AiOutlineDelete, 
+    AiOutlineDownload, 
+    AiOutlineShareAlt, 
+    AiFillFileImage,
+    AiFillFilePdf
+} from 'react-icons/ai'
+import {  HiMusicNote } from 'react-icons/hi'
+import {FaFileVideo} from 'react-icons/fa'
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {useAppDispatch} from '../../hooks/redux'
 import {openModal} from '../../features/events/eventSlice'
-import {File} from '../../interfaces/user.interface'
 
-interface Props {
+interface FileCardProps {
     file: File
 }
 
-const Folder: FC<Props> = ({file}) => {
-    
-    //@ts-ignore
-    const [collected, drag, dragPreview] = useDrag({
-        type: 'folder',
-        item: file,
-        collect: (monitor) => {
-            dragPreview: monitor.isDragging()
-        },
-    })
+export const FileCard: FC<FileCardProps> = ({file}) => {
 
     const dispatch = useAppDispatch()
 
@@ -55,22 +52,22 @@ const Folder: FC<Props> = ({file}) => {
 
     const classes = useStyles()
 
-    return (
-        <Grid item xs={2}>
+  return (
+    <Grid item xs={2}>
             <Grid
                 container
                 direction={"column"}
                 justifyContent={'center'}
                 alignItems={'center'}
                 className='!cursor-pointer'
-                ref={drag}
                 onContextMenu={(e) => {handleClick(e); e.stopPropagation()}}
             >
-                <FcFolder size={100}/>
-                <div className='flex items-center flex-col gap-2 text-base'>
-                    <p className='font-medium text-xl text-black/[85%]'>{file.name}</p>
-                    <p className='text-black/[45%] font-bold'>{file.childs.length} Items</p>
-                    <p className='font-bold text-black/[25%] uppercase'>{file.size} mb</p>
+                <div className='flex items-center flex-col justify-center'>
+                    {file.type.includes('image')? <AiFillFileImage size={80}/>  : ''}
+                    <div className=''>
+                        {file.type.includes('image')? <AiFillFileImage/>  : ''}
+                        <p>{file.name}</p>
+                    </div>
                 </div>
             </Grid>
             <Menu
@@ -93,10 +90,6 @@ const Folder: FC<Props> = ({file}) => {
                     Rename
                 </MenuItem>
                 <MenuItem className={classes.root}>
-                    <AiOutlineTags/>
-                    Add tag
-                </MenuItem>
-                <MenuItem className={classes.root}>
                     <AiOutlineShareAlt/>
                     Share
                 </MenuItem>
@@ -106,7 +99,5 @@ const Folder: FC<Props> = ({file}) => {
                 </MenuItem>
             </Menu>
         </Grid>
-    );
-};
-
-export default Folder;
+  )
+}
