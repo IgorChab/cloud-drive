@@ -1,23 +1,20 @@
 import {configureStore, combineReducers} from "@reduxjs/toolkit";
 import {authApi} from "./services/auth";
 import {fileApi} from "./services/fileService";
-import AuthReducer from '../features/user/userSlice'
+import userReducer from '../features/user/userSlice'
 import EventReducer from '../features/events/eventSlice'
-import FileReducer from '../features/files/fileSlice'
 
 const rootReducer = combineReducers({
     [authApi.reducerPath]: authApi.reducer,
-    auth: AuthReducer,
+    appInfo: userReducer,
     event: EventReducer,
-    storage: FileReducer,
     [fileApi.reducerPath]: fileApi.reducer
 })
 
 
 export const store = configureStore({
     reducer: rootReducer,
-    middleware: getDefaultMiddleware => getDefaultMiddleware().concat(authApi.middleware).concat(fileApi.middleware),
-    devTools: true,
+    middleware: getDefaultMiddleware => getDefaultMiddleware({serializableCheck: false}).concat(authApi.middleware).concat(fileApi.middleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>

@@ -1,6 +1,3 @@
-import {Prop} from "@nestjs/mongoose";
-import mongoose from "mongoose";
-
 export class FileCreationDto {
     name: string
 

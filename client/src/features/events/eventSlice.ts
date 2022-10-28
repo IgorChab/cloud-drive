@@ -1,8 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {File} from '../../interfaces/user.interface'
 
-import React from 'react';
-
 type ModalWindowType = 'create' | 'rename'
 
 export interface ModalWindow {
@@ -10,16 +8,14 @@ export interface ModalWindow {
     type?: ModalWindowType
 }
 
-interface Coords {
-    mouseX: null | number;
-    mouseY: null | number;
-}
-
 interface InitialState {
     modal: ModalWindow
     dataList: boolean
-    contextMenu: Coords
     currentFile: File
+    uploadProgressModal: {
+        open: boolean,
+        files: any[] | null
+    }
 }
 
 
@@ -30,11 +26,11 @@ const eventSlice = createSlice({
             type: 'create'
         },
         dataList: false,
-        contextMenu: {
-            mouseX: null,
-            mouseY: null,
-        },
-        currentFile: {}
+        currentFile: {},
+        uploadProgressModal: {
+            open: false,
+            files: null
+        }
     } as InitialState,
     name: 'event',
     reducers: {
@@ -50,10 +46,25 @@ const eventSlice = createSlice({
         },
         setCurrentFile: (state, {payload: file}: PayloadAction<File>) => {
             state.currentFile = file
+        },
+        openUploadProgressModal: (state, {payload: files}: PayloadAction<any[]>) => {
+            state.uploadProgressModal.open = true
+            state.uploadProgressModal.files = files
+        },
+        closeUploadProgressModal: state => {
+            state.uploadProgressModal.open = false
+            state.uploadProgressModal.files = []
         }
     }
 })
 
 export default eventSlice.reducer
 
-export const {closeModal, openModal, switchFileContainer, setCurrentFile} = eventSlice.actions
+export const {
+    closeModal, 
+    openModal, 
+    switchFileContainer, 
+    setCurrentFile, 
+    closeUploadProgressModal, 
+    openUploadProgressModal
+} = eventSlice.actions

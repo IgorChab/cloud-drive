@@ -6,7 +6,7 @@ export interface File {
     path: string
     date: string
     type: string
-    childs: string[]
+    childs: File[]
 }
 
 export interface User {

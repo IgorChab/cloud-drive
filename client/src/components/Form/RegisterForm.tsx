@@ -149,7 +149,7 @@ const RegisterForm: FC = () => {
                     </Button>
                     <div className='wrapLink'>
                         <p>Already registered?</p>
-                        <Link to={'/login'}>Login</Link>
+                        <Link to={'/login'} className='text-[#43A5FF] hover:underline'>Login</Link>
                     </div>
                 </form>
             </Paper>

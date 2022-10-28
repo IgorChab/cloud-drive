@@ -5,8 +5,11 @@ import {useDrag} from 'react-dnd'
 import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags} from 'react-icons/ai'
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {useAppDispatch} from '../../hooks/redux'
-import {openModal} from '../../features/events/eventSlice'
+import {openModal, setCurrentFile} from '../../features/events/eventSlice'
 import {File} from '../../interfaces/user.interface'
+import {openFolder} from '../../features/user/userSlice'
+import {useLazyDeleteFileQuery} from '../../app/services/fileService'
+import {formatBytes} from '../DataList/DataList'
 
 interface Props {
     file: File
@@ -14,6 +17,8 @@ interface Props {
 
 const Folder: FC<Props> = ({file}) => {
     
+    const [deleteFileQuery, {data}] = useLazyDeleteFileQuery()
+
     //@ts-ignore
     const [collected, drag, dragPreview] = useDrag({
         type: 'folder',
@@ -35,8 +40,9 @@ const Folder: FC<Props> = ({file}) => {
         mouseY: null | number;
     }>(initialState);
     
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>, file: File) => {
         event.preventDefault();
+        dispatch(setCurrentFile(file))
         setState({
             mouseX: event.clientX - 2,
             mouseY: event.clientY - 4,
@@ -56,23 +62,20 @@ const Folder: FC<Props> = ({file}) => {
     const classes = useStyles()
 
     return (
-        <Grid item xs={2}>
-            <Grid
-                container
-                direction={"column"}
-                justifyContent={'center'}
-                alignItems={'center'}
-                className='!cursor-pointer'
+        <>
+            <div
+                className='cursor-pointer flex flex-col items-center'
                 ref={drag}
-                onContextMenu={(e) => {handleClick(e); e.stopPropagation()}}
+                onContextMenu={(e) => {handleClick(e, file); e.stopPropagation()}}
+                onDoubleClick={() => {dispatch(openFolder(file)); dispatch(setCurrentFile(file))}}
             >
                 <FcFolder size={100}/>
-                <div className='flex items-center flex-col gap-2 text-base'>
-                    <p className='font-medium text-xl text-black/[85%]'>{file.name}</p>
+                <div className='flex items-center flex-col text-base mt-[-10px]'>
+                    <p className='font-medium text-lg text-black/[85%]'>{file.name}</p>
                     <p className='text-black/[45%] font-bold'>{file.childs.length} Items</p>
-                    <p className='font-bold text-black/[25%] uppercase'>{file.size} mb</p>
+                    <p className='font-bold text-black/[25%] capitalize'>{formatBytes(file.size)}</p>
                 </div>
-            </Grid>
+            </div>
             <Menu
                 keepMounted
                 open={state.mouseY !== null}
@@ -100,12 +103,12 @@ const Folder: FC<Props> = ({file}) => {
                     <AiOutlineShareAlt/>
                     Share
                 </MenuItem>
-                <MenuItem className={classes.root}>
+                <MenuItem className={classes.root} onClick={() => {handleClose(); deleteFileQuery(file._id)}}> 
                     <AiOutlineDelete/>
                     Delete
                 </MenuItem>
             </Menu>
-        </Grid>
+        </>
     );
 };
 

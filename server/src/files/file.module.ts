@@ -4,7 +4,6 @@ import {FileService} from "./file.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {User, UserSchema} from "../models/user.model";
 import {File, FileSchema} from "../models/file.model";
-import {Folder, FolderSchema} from "../models/folder.model";
 import {JwtModule} from "@nestjs/jwt";
 import {Token, TokenSchema} from "../models/token.model";
 import {MulterModule} from "@nestjs/platform-express";
@@ -16,8 +15,7 @@ import * as path from 'path'
         MongooseModule.forFeature([
             {name: User.name, schema: UserSchema},
             {name: File.name, schema: FileSchema},
-            {name: Token.name, schema: TokenSchema},
-            {name: Folder.name, schema: FolderSchema}
+            {name: Token.name, schema: TokenSchema}
         ]),
         JwtModule.register({}),
         MulterModule.register({

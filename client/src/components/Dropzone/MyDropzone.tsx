@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useState} from 'react'
+import React, {FC, useCallback, useEffect, useState} from 'react'
 import {useDropzone} from 'react-dropzone'
 import {DataList} from '../DataList/DataList';
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux';
@@ -8,37 +8,50 @@ import Folder from "../Folder/Folder";
 import {AiOutlineCloudUpload, AiOutlineFolderAdd} from "react-icons/ai";
 import './MyDropzone.css'
 import { useUploadFilesMutation } from '../../app/services/fileService';
-import { setStorageInfo, setFiles } from '../../features/files/fileSlice';
-import { FileCard } from '../File/FileCard';
+import { FileCard } from '../FileCard/FileCard';
+import {UploadProgressModal} from '../UploadProgressModal/UploadProgressModal'
+import {openUploadProgressModal} from '../../features/events/eventSlice'
+// import { setFiles } from '../../features/user/userSlice';
+import { CurrentFolder } from '../CurrentFolder/CurrentFolder';
+
 export const MyDropzone: FC = () => {
 
-    const [uploadFiles, {isLoading, isError, data}] = useUploadFilesMutation()
+    const dispatch = useAppDispatch()
 
-    const user = useTypedSelector(state => state.auth.user)
-    const files = useTypedSelector(state => state.storage.files)
-    console.log('uploded files ===>>>', files)
+    const [uploadFiles, {isLoading, isError, error, data, isUninitialized, isSuccess}] = useUploadFilesMutation()
 
-    const currentFolder = useTypedSelector(state => state.storage.currentFolder)
-    console.log(currentFolder)
+    const uploadProgressModal = useTypedSelector(state => state.event.uploadProgressModal)
 
-    const handleUpload = useCallback(async (acceptedFiles: any) => {
+    const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
+
+    const files = useTypedSelector(state => state.appInfo.user!.files)
+    //@ts-ignore
+    const childFiles = useTypedSelector(state => state.appInfo.childFiles)
+
+    const currentPath = useTypedSelector(state => state.appInfo.currentPath)
+
+    const handleUpload = (acceptedFiles: any) => {
+        dispatch(openUploadProgressModal(acceptedFiles))
         console.log(acceptedFiles)
+        console.log(currentFolder)
         const formData = new FormData()
-        //@ts-ignore
-        formData.append('currentFolder', currentFolder)
+        console.log('handleUpload currentPath ==>>', currentPath)
+        formData.append('currentPath', currentPath)
+        formData.append('currentFolderID', currentFolder?._id == null? currentPath : currentFolder?._id)
         acceptedFiles.forEach((file: any) => {
             formData.append('files', file)
         });
         uploadFiles(formData)
-        if(data){
-            dispatch(setFiles(data))
-        }
         // const totalSize = acceptedFiles.reduce((acc: number, file: any) => acc + file.size, 0)
-    }, [])
+    }
+
+    // useEffect(() => {
+    //     if(data){
+    //        dispatch(setFiles(data))
+    //    }
+    // }, [data])
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop: handleUpload, noClick: true})
-
-    const dispatch = useAppDispatch()
 
     const dataList = useTypedSelector(state => state.event.dataList)
 
@@ -71,10 +84,10 @@ export const MyDropzone: FC = () => {
     })
 
     const classes = useStyles()
-
+    // onContextMenu={handleClick} 
   return (
-    <div className={`relative ${isDragActive? 'borderAnimate' : ''}`}>
-        <Grid container wrap={"wrap"} className='foldersContainer' onContextMenu={handleClick} {...getRootProps()}>
+    <div className={`h-full ${!dataList  && 'overflow-auto'} ${isDragActive? 'borderAnimate' : ''}`} {...getRootProps()}>
+        <div className={`grid relative ${!dataList && 'grid-cols-5'} gap-3 w-full`}>
             <Menu
                 keepMounted
                 open={state.mouseY !== null}
@@ -98,21 +111,10 @@ export const MyDropzone: FC = () => {
                     <input type='file' id='uploadFile' hidden {...getInputProps()}/>
                 </MenuItem>
             </Menu>
-            {dataList
-                ? <DataList files={files}/> 
-                : files.map(file => (
-                    file.type == 'dir'
-                    ? <Folder file={file} key={file?._id}/>
-                    : <FileCard file={file} key={file?._id}/>
-                ))
-            }
-            {isDragActive
-                ? <div className='hintUpload'>
-                    Drop here to upload file
-                </div>
-                : ''
-            }
-        </Grid>
+            <CurrentFolder/>
+            {isDragActive && <div className='hintUpload'>Drop here to upload file</div>}
+        </div>
+        {!isUninitialized && uploadProgressModal.open && <UploadProgressModal error={error} data={data} isSuccess={isSuccess} isLoading={isLoading} isError={isError}/>}
     </div>
   )
 }

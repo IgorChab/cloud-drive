@@ -1,9 +1,8 @@
-import React, { FC, useState } from 'react'
-import { isReturnStatement } from 'typescript'
+import React, { FC, useEffect, useState } from 'react'
 import {closeModal} from '../../features/events/eventSlice'
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux'
-import { useCreateFolderMutation } from '../../app/services/fileService';
-import { setFiles } from '../../features/user/userSlice';
+import { useCreateFolderMutation, useRenameFileMutation} from '../../app/services/fileService';
+// import { setFiles } from '../../features/user/userSlice';
 import {Paper, TextField, Button} from '@material-ui/core'
 
 const Modal: FC = () => {
@@ -12,9 +11,13 @@ const Modal: FC = () => {
 
     const modal = useTypedSelector(state => state.event.modal)
 
-    const currentFolder = useTypedSelector(state => state.storage.currentFolder)
+    const currentPath = useTypedSelector(state => state.appInfo.currentPath)
 
-    const [createFolderMutation, {isLoading, isError, error}] = useCreateFolderMutation()
+    const userID = useTypedSelector(state => state.appInfo.user!._id)
+
+    const [createFolderMutation, {isLoading, isError, error, data}] = useCreateFolderMutation()
+
+    const [renameFileQuery, status] = useRenameFileMutation()
 
     const dispatch = useAppDispatch()
 
@@ -27,17 +30,21 @@ const Modal: FC = () => {
             setFileNameError('Enter folder name')
             return
         }
-        const folder = await createFolderMutation({
-            fileName,
-            currentFolder
-        })
-        //@ts-ignore
-        if(!folder.error){
-            dispatch(closeModal())
+        if(modal.type == 'rename'){
+            renameFileQuery({
+                fileID: currentFile._id,
+                newName: fileName
+            })
+        } else {
+            createFolderMutation({
+                folderName: fileName,
+                currentFolder: currentPath,
+                parentFolderId: currentFile._id || userID
+            })
         }
-        //@ts-ignore
-        dispatch(setFiles(folder.data))
+        dispatch(closeModal())
     }
+
   return (
     <form className='absolute inset-0 bg-black/[54%] flex items-center justify-center z-50' 
         onClick={() => dispatch(closeModal())} 
@@ -46,6 +53,7 @@ const Modal: FC = () => {
         <Paper className='w-[350px] p-4 rounded' onClick={e => e.stopPropagation()}>
             <p className="font-medium">{modal.type == 'rename'? 'Rename' : 'Folder Name'}</p>
             <TextField 
+                autoFocus
                 type="text" 
                 placeholder={modal.type == 'rename'? 'New name' : 'New Folder' }
                 fullWidth

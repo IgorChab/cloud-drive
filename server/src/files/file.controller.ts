@@ -2,9 +2,10 @@ import {
     Body, 
     Controller, 
     Get, Post, Delete,
-    Req, Param,
+    Req, Param, Res,
     UploadedFiles, 
     UseGuards, 
+    StreamableFile,
     UseInterceptors} from '@nestjs/common'
 import {AuthGuard} from "../auth/auth.guard";
 import {FileService} from "./file.service";
@@ -19,8 +20,7 @@ export class FileController {
     @Post('uploadFiles')
     @UseInterceptors(FilesInterceptor('files'))
     async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Req() req){
-        console.log('body',req.body)
-        return await this.fileService.uploadFiles(files, req.userID, req.body.currentFolder)
+        return await this.fileService.uploadFiles(files, req.userID, req.body.currentPath, req.body.currentFolderID)
     }
 
     @Post('createFolder')
@@ -33,8 +33,19 @@ export class FileController {
         this.fileService.deleteFile(fileID) 
     }
 
-    // @Delete('deleteFolder/:id')
-    // async deleteFolder(@Param('id') folderID: string) {
-    //     this.fileService.deleteFolder(folderID)
-    // }
+    @Post('renameFile')
+    async deleteFolder(@Body() renameFileDto: {newName: string, fileID: string}) {
+        this.fileService.renameFile(renameFileDto)
+    }
+
+    @Post('getCurrentFolder')
+    async getCurrentFolder(@Body() dto: {fileID: string}){
+        return this.fileService.getCurrentFolder(dto.fileID)
+    }
+
+    @Get('downloadFile/:id')
+    async downloadFile(@Param('id') fileID: string, @Req() req, @Res() res){
+        const file = await this.fileService.downloadFile(fileID, req.userID)
+        res.download(file.path, file.name)
+    }
 }

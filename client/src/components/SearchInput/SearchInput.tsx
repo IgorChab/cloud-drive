@@ -9,7 +9,7 @@ const SearchInput = () => {
 
     const dispatch = useAppDispatch()
 
-    const dataGrid = useTypedSelector(state => state.event.dataGrid)
+    const dataList = useTypedSelector(state => state.event.dataList)
 
     return (
         <div className='flex gap-3 items-center w-full my-4'>
@@ -28,9 +28,9 @@ const SearchInput = () => {
                 <AiOutlineFilter color={'#00000072'} size={16} cursor={'pointer'}/>
             </Button>
             <Button className='!p-[5px] !rounded-[50%] !min-w-[auto]' onClick={() => dispatch(switchFileContainer())}>
-                {dataGrid
-                    ? <TbGridDots color={'#00000072'} size={16} cursor={'pointer'}/>
-                    : <AiOutlineUnorderedList color={'#00000072'} size={16} cursor={'pointer'}/>
+                {dataList
+                    ? <TbGridDots color='#00000072' size={16} cursor='pointer'/>
+                    : <AiOutlineUnorderedList color='#00000072' size={16} cursor='pointer'/>
                 }
             </Button>
         </div>

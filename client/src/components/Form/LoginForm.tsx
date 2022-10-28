@@ -10,7 +10,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import {useLoginMutation } from '../../app/services/auth'
 import { useAppDispatch } from '../../hooks/redux';
 import { setCredentials } from '../../features/user/userSlice';
-import { setStorageInfo } from '../../features/files/fileSlice';
 
 type TransitionProps = Omit<SlideProps, 'direction'>;
 
@@ -123,7 +122,7 @@ const LoginForm: FC = () => {
                     </Button>
                     <div className='wrapLink'>
                         <p>Not registered yet?</p>
-                        <Link to={'/'}>Registration</Link>
+                        <Link to={'/'} className='text-[#43A5FF] hover:underline'>Registration</Link>
                     </div>
                 </form>
             </Paper>

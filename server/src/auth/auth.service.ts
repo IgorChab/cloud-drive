@@ -88,7 +88,7 @@ export class AuthService{
                 tokenHash: tokenHash,
                 userID: tokenPayload.userID
             })
-            const user: IUser = await this.userModel.findById(tokenPayload.userID).populate('files')
+            const user: IUser = await this.userModel.findById(tokenPayload.userID)
             return {
                 user,
                 ...tokens

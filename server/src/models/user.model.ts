@@ -17,8 +17,8 @@ export class User {
     @Prop()
     password: string;
 
-    @Prop({type: [mongoose.Schema.Types.ObjectId], ref: 'File', default: []})
-    files: ObjectId[]
+    // @Prop({type: [mongoose.Schema.Types.ObjectId], ref: 'File', default: []})
+    // files: ObjectId[]
 
     // @Prop({type: [mongoose.Schema.Types.ObjectId], ref: 'Folder', default: []})
     // folders: ObjectId[]

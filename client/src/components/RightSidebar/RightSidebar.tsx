@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 import './RightSidebar.css'
 import BackgroundLetterAvatars from "../Avatar/Avatar";
 import {AiOutlineFileImage, AiOutlineFilePdf, AiOutlineFileUnknown} from "react-icons/ai";
-import {Grid} from "@material-ui/core";
+import {MdOutlineLogout} from 'react-icons/md'
+import {File} from '../../interfaces/user.interface'
 import PinnedFolder from "../PinnedFolder/PinnedFolder";
 import {useDrop} from 'react-dnd'
-import { useTypedSelector } from '../../hooks/redux';
+import { useTypedSelector, useAppDispatch } from '../../hooks/redux';
+import { logout } from '../../features/user/userSlice';
 
 const RightSidebar = () => {
 
-    const user = useTypedSelector(state => state.auth.user)
+    const dispatch = useAppDispatch()
 
-    const [pinnedFolders, setPinnedFolders] = useState([])
+    const user = useTypedSelector(state => state.appInfo.user)
+
+    const [pinnedFolders, setPinnedFolders] = useState<File[]>([])
 
     const [{ isOver }, dropRef] = useDrop({
         accept: 'folder',
@@ -25,11 +29,17 @@ const RightSidebar = () => {
 
     return (
         <div className='p-[30px_15px]'>
-            <div className="flex items-center font-medium text-[20px] text-black/[85] gap-3 leading-7">
-                <BackgroundLetterAvatars fullName='Igor Chabanchuk'/>
-                <div>
-                    <p>Hi, {user?.firstName}</p>
-                    <p className='font-normal text-sm text-black/[45%]'>Profile Settings</p>
+            <div className="flex items-center justify-between font-medium text-[20px] text-black/[85] leading-7">
+                <div className='flex items-center gap-3'>
+                    <BackgroundLetterAvatars fullName='Igor Chabanchuk'/>
+                    <div>
+                        <p>Hi, {user?.firstName}</p>
+                        <p className='font-normal text-sm text-black/[45%]'>Profile Settings</p>
+                    </div>
+                </div>
+                <div className='flex items-center flex-col cursor-pointer' onClick={() => dispatch(logout())}>
+                    <MdOutlineLogout size={24} className='text-black/[45%]'/>
+                    <p className='font-normal text-sm text-black/[45%]'>Logout</p>
                 </div>
             </div>
             <div className="flex flex-col gap-[15px] font-normal text-black/[45] text-sm mt-5">
@@ -61,9 +71,9 @@ const RightSidebar = () => {
                 <div className="h-full" ref={dropRef}>
                     {pinnedFolders.map(folder => (
                         //@ts-ignore
-                        <PinnedFolder items={folder.childs.length} name={folder.name} space={folder.size}/>
+                        <PinnedFolder items={folder.childs.length} name={folder.name} size={folder.size}/>
                     ))}
-                    <PinnedFolder preview={true}/>
+                    <PinnedFolder preview={true} size={0}/>
                 </div>
             </div>
         </div>

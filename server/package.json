@@ -4,6 +4,7 @@
   "description": "",
   "author": "",
   "private": true,
+  "proxy": "http://localhost:5000",
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",

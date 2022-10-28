@@ -1,17 +1,29 @@
 import React from 'react';
-import {Button, Grid, Breadcrumbs} from "@material-ui/core";
+import {Button, Grid, Breadcrumbs, makeStyles} from "@material-ui/core";
 import {AiOutlinePlus} from "react-icons/ai";
 import SearchInput from "../SearchInput/SearchInput";
 import Modal from '../Modal/Modal'
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux';
 import { openModal } from '../../features/events/eventSlice';
 import MyDropzone from '../Dropzone/MyDropzone';
+import { closeFolder, closeAllFolders} from '../../features/user/userSlice';
 
 const Main = () => {
 
     const dispatch = useAppDispatch()
 
     const modal = useTypedSelector(state => state.event.modal)
+
+    const folderStack = useTypedSelector(state => state.appInfo.folderStack)
+
+    const useStyles = makeStyles({
+        ol: {
+            display: 'flex',
+            alignItems: 'baseline'
+        }
+    })
+
+    const classes = useStyles()
 
     return (
         <>
@@ -21,7 +33,23 @@ const Main = () => {
                 justifyContent={"space-between"}
                 alignItems={"center"}
             >
-                <p className='font-medium text-[38px]'>My Drive</p>
+                <Breadcrumbs maxItems={4} itemsBeforeCollapse={2} itemsAfterCollapse={2} classes={{ol: classes.ol}}>
+                    <p 
+                        className={`font-medium text-[34px] ${folderStack.length == 0? 'text-black' : 'cursor-pointer'}`}
+                        onClick={() => dispatch(closeAllFolders())}
+                    >
+                        My Drive
+                    </p>
+                    {folderStack.map((folder, i) => (
+                        <div 
+                            className={`${i == folderStack.length - 1? 'text-black' : 'cursor-pointer hover:underline'}`}
+                            onClick={() => dispatch(closeFolder(folder))}
+                            key={folder._id}
+                        >
+                            {folder.name}
+                        </div>
+                    ))}
+                </Breadcrumbs>
                 <Button 
                     color={"primary"} 
                     variant={"contained"} 
@@ -34,15 +62,6 @@ const Main = () => {
                     </div>
                 </Button>
             </Grid>
-            <Breadcrumbs>
-                <div className='cursor-pointer hover:underline'>
-                    Material-UI
-                </div>
-                <div>
-                    Core
-                </div>
-                <div className='text-black'>Breadcrumb</div>
-            </Breadcrumbs>
             <SearchInput/>
             <MyDropzone/>
         </>
