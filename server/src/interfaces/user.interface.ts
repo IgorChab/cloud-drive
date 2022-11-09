@@ -5,6 +5,8 @@ export interface IUser{
     lastName: string
     email: string
     password: string
+    availableSpace: number
+    usedSpace: number
 }
 
 export interface UserCreationAttr{

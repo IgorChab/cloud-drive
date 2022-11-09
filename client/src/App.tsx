@@ -5,30 +5,22 @@ import RegisterForm from './components/Form/RegisterForm';
 import LoginForm from './components/Form/LoginForm';
 import { useTypedSelector, useAppDispatch } from './hooks/redux';
 import NotFound from './components/404/NotFound';
-import {useCheckAuthQuery} from './app/services/auth'
-import { setCredentials, logout} from './features/user/userSlice';
-
+import AuthService from './app/services/authService'
+import {ShareFile} from './components/ShareFile/ShareFile'
 function App() {
 
-    const user = useTypedSelector(state => state.appInfo.user)
-    console.log(user)
-    const dispatch = useAppDispatch()
-
-    const {data, isLoading, error} = useCheckAuthQuery()
+    const isAuth = useTypedSelector(state => state.appInfo.isAuth)
+    const appInfo = useTypedSelector(state => state.appInfo)
+    console.log(appInfo)
 
     useEffect(() => {
-        //@ts-ignore
-        if(data){
-            dispatch(setCredentials(data))
-        } else {
-            dispatch(logout())
-        }
-    }, [data])
+        AuthService.checkAuth()
+    }, [])
 
   return (
         <BrowserRouter>
             <Routes>
-                {user
+                {isAuth
                     ?
                         <>
                             <Route path='/dashboard' element={<Dashboard/>}/>
@@ -41,6 +33,7 @@ function App() {
                             <Route path='/dashboard' element={<Navigate to={'/'}/>}/>
                         </>
                 }
+                <Route path='/shareFiles/:link' element={<ShareFile/>}/>
             </Routes>
         </BrowserRouter>
   );

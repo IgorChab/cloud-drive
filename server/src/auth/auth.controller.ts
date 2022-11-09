@@ -1,8 +1,7 @@
-import {Controller, Post, Body, Res, Get, UseGuards, Req, UnauthorizedException} from '@nestjs/common'
+import {Controller, Post, Body, Res, Get, UseGuards, Req, UnauthorizedException, Param} from '@nestjs/common'
 import { AuthService } from './auth.service'
 import {CreateUserDto, LoginUserDto} from "../dto/user.dto";
 import {AuthGuard} from "./auth.guard";
-
 
 @Controller('auth')
 export class AuthController{
@@ -35,5 +34,10 @@ export class AuthController{
         })
         delete userData.refreshToken
         return userData
+    }
+
+    @Get('logout/:id')
+    async logout(@Param('id') id: string){
+        await this.authService.logout(id)
     }
 }

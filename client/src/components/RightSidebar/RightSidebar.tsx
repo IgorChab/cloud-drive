@@ -7,20 +7,20 @@ import {File} from '../../interfaces/user.interface'
 import PinnedFolder from "../PinnedFolder/PinnedFolder";
 import {useDrop} from 'react-dnd'
 import { useTypedSelector, useAppDispatch } from '../../hooks/redux';
-import { logout } from '../../features/user/userSlice';
-
+import { logout, addPinnedFolder } from '../../features/user/userSlice';
+import {openFolder} from '../../features/user/userSlice'
+import AuthService from '../../app/services/authService'
 const RightSidebar = () => {
 
     const dispatch = useAppDispatch()
 
     const user = useTypedSelector(state => state.appInfo.user)
-
-    const [pinnedFolders, setPinnedFolders] = useState<File[]>([])
+    const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
+    const pinnedFolders = useTypedSelector(state => state.appInfo.pinnedFolders)
 
     const [{ isOver }, dropRef] = useDrop({
         accept: 'folder',
-        //@ts-ignore
-        drop: (item) => setPinnedFolders((pinnedFolders) => !pinnedFolders.includes(item) ? [...pinnedFolders, item] : pinnedFolders),
+        drop: (item: File) => {if(!pinnedFolders.includes(item)) dispatch(addPinnedFolder(item))},
         collect: (monitor) => ({
             isOver: monitor.isOver()
         })
@@ -37,7 +37,7 @@ const RightSidebar = () => {
                         <p className='font-normal text-sm text-black/[45%]'>Profile Settings</p>
                     </div>
                 </div>
-                <div className='flex items-center flex-col cursor-pointer' onClick={() => dispatch(logout())}>
+                <div className='flex items-center flex-col cursor-pointer' onClick={() => {dispatch(logout()); AuthService.logout(user!._id)}}>
                     <MdOutlineLogout size={24} className='text-black/[45%]'/>
                     <p className='font-normal text-sm text-black/[45%]'>Logout</p>
                 </div>
@@ -67,11 +67,16 @@ const RightSidebar = () => {
                 </div>
             </div>
             <div className="mt-[30px]">
-                <p className="font-medium text-[#595959] text-sm">Pinned Folder</p>
+                <p className="font-medium text-[#595959] text-sm">Pinned Folders</p>
                 <div className="h-full" ref={dropRef}>
                     {pinnedFolders.map(folder => (
-                        //@ts-ignore
-                        <PinnedFolder items={folder.childs.length} name={folder.name} size={folder.size}/>
+                        <div 
+                            onDoubleClick={() => {if(currentFolder?._id !== folder._id) dispatch(openFolder(folder))}}
+                            className='select-none'
+                            key={folder._id}
+                        >
+                            <PinnedFolder items={folder.childs.length} name={folder.name} size={folder.size}/>
+                        </div>
                     ))}
                     <PinnedFolder preview={true} size={0}/>
                 </div>

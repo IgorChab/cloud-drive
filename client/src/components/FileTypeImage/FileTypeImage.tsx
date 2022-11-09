@@ -74,7 +74,11 @@ export const FileTypeImage: FC<FileTypeProps> = ({type, size, path}) => {
                     <img src={`http://localhost:5000/${path}`} className='rounded-[4px_4px_0px_0px] object-cover'/>
                 </div>}
         
-            {video.includes(type) && <video src={`http://localhost:5000/${path}`} className='rounded-[4px_4px_0px_0px]'/>}
+            {video.includes(type) && 
+                <div className='flex h-full'>
+                    <video src={`http://localhost:5000/${path}`} controls className='rounded-[4px_4px_0px_0px] object-cover'/>
+                </div>
+            }
         </>
         : <div className='flex items-center justify-center h-full'>
             {React.cloneElement(t?.component? t.component : <AiFillFileUnknown size={16} color='#82E0AA'/>, {size: size, className: 'shrink-0'})}

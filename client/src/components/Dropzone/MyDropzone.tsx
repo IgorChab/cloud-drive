@@ -1,57 +1,45 @@
-import React, {FC, useCallback, useEffect, useState} from 'react'
+import React, {FC, useState} from 'react'
 import {useDropzone} from 'react-dropzone'
-import {DataList} from '../DataList/DataList';
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux';
 import { openModal } from '../../features/events/eventSlice';
-import {Grid, Menu, MenuItem, makeStyles} from "@material-ui/core";
-import Folder from "../Folder/Folder";
+import {Menu, MenuItem, makeStyles} from "@material-ui/core";
 import {AiOutlineCloudUpload, AiOutlineFolderAdd} from "react-icons/ai";
 import './MyDropzone.css'
-import { useUploadFilesMutation } from '../../app/services/fileService';
-import { FileCard } from '../FileCard/FileCard';
+import FileService from '../../app/services/fileService';
 import {UploadProgressModal} from '../UploadProgressModal/UploadProgressModal'
-import {openUploadProgressModal} from '../../features/events/eventSlice'
-// import { setFiles } from '../../features/user/userSlice';
+import {openUploadProgressModal, openDialog} from '../../features/events/eventSlice'
 import { CurrentFolder } from '../CurrentFolder/CurrentFolder';
+import { MyDialog } from '../Dialog/Dialog';
 
 export const MyDropzone: FC = () => {
 
     const dispatch = useAppDispatch()
 
-    const [uploadFiles, {isLoading, isError, error, data, isUninitialized, isSuccess}] = useUploadFilesMutation()
+    const open = useTypedSelector(state => state.event.dialogOpen)
 
     const uploadProgressModal = useTypedSelector(state => state.event.uploadProgressModal)
 
     const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
 
-    const files = useTypedSelector(state => state.appInfo.user!.files)
-    //@ts-ignore
-    const childFiles = useTypedSelector(state => state.appInfo.childFiles)
-
     const currentPath = useTypedSelector(state => state.appInfo.currentPath)
+
+    const [serverError, setServerError] = useState('')
 
     const handleUpload = (acceptedFiles: any) => {
         dispatch(openUploadProgressModal(acceptedFiles))
         console.log(acceptedFiles)
-        console.log(currentFolder)
         const formData = new FormData()
-        console.log('handleUpload currentPath ==>>', currentPath)
         formData.append('currentPath', currentPath)
         formData.append('currentFolderID', currentFolder?._id == null? currentPath : currentFolder?._id)
-        acceptedFiles.forEach((file: any) => {
-            formData.append('files', file)
-        });
-        uploadFiles(formData)
-        // const totalSize = acceptedFiles.reduce((acc: number, file: any) => acc + file.size, 0)
+        FileService.uploadFiles(acceptedFiles, formData)
+        .then(() => setServerError(''))
+        .catch(e => {
+            setServerError(e?.response?.data?.message)
+            dispatch(openDialog())
+        })
     }
 
-    // useEffect(() => {
-    //     if(data){
-    //        dispatch(setFiles(data))
-    //    }
-    // }, [data])
-
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop: handleUpload, noClick: true})
+    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop: handleUpload, noClick: true, noKeyboard: true})
 
     const dataList = useTypedSelector(state => state.event.dataList)
 
@@ -87,7 +75,7 @@ export const MyDropzone: FC = () => {
     // onContextMenu={handleClick} 
   return (
     <div className={`h-full ${!dataList  && 'overflow-auto'} ${isDragActive? 'borderAnimate' : ''}`} {...getRootProps()}>
-        <div className={`grid relative ${!dataList && 'grid-cols-5'} gap-3 w-full`}>
+        <div className={`grid ${!dataList && 'grid-cols-5'} gap-3 w-full`}>
             <Menu
                 keepMounted
                 open={state.mouseY !== null}
@@ -112,9 +100,10 @@ export const MyDropzone: FC = () => {
                 </MenuItem>
             </Menu>
             <CurrentFolder/>
-            {isDragActive && <div className='hintUpload'>Drop here to upload file</div>}
         </div>
-        {!isUninitialized && uploadProgressModal.open && <UploadProgressModal error={error} data={data} isSuccess={isSuccess} isLoading={isLoading} isError={isError}/>}
+        {isDragActive && <div className={`hintUpload ${isDragActive && 'animate-bounce'}`}>Drop here to upload file</div>}
+        {uploadProgressModal.open && <UploadProgressModal/>}
+        {serverError && open && <MyDialog errorMsg={serverError}/>}
     </div>
   )
 }

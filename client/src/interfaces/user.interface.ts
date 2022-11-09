@@ -17,7 +17,6 @@ export interface User {
     password: string
     availableSpace: number
     usedSpace: number
-    files: File[]
 }
 
 export interface UserRes {

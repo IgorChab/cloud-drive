@@ -1,21 +1,27 @@
 import {configureStore, combineReducers} from "@reduxjs/toolkit";
-import {authApi} from "./services/auth";
-import {fileApi} from "./services/fileService";
 import userReducer from '../features/user/userSlice'
 import EventReducer from '../features/events/eventSlice'
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 
 const rootReducer = combineReducers({
-    [authApi.reducerPath]: authApi.reducer,
     appInfo: userReducer,
     event: EventReducer,
-    [fileApi.reducerPath]: fileApi.reducer
 })
 
+const persistConfig = {
+    key: 'root',
+    storage,
+    blacklist: ['event']
+  }
+   
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = configureStore({
-    reducer: rootReducer,
-    middleware: getDefaultMiddleware => getDefaultMiddleware({serializableCheck: false}).concat(authApi.middleware).concat(fileApi.middleware),
+    reducer: persistedReducer,
+    middleware: getDefaultMiddleware => getDefaultMiddleware({serializableCheck: false})
 })
 
+export const persistor = persistStore(store)
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

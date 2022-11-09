@@ -1,16 +1,11 @@
 import React, {FC, useEffect, useState} from 'react';
 import './Form.css'
-
 import {MdErrorOutline} from 'react-icons/md'
-
 import {TextField, Button, Paper, Slide, SlideProps, Snackbar} from '@material-ui/core'
-
 import { useNavigate, Link } from 'react-router-dom';
-
-import {useLoginMutation } from '../../app/services/auth'
-import { useAppDispatch } from '../../hooks/redux';
-import { setCredentials } from '../../features/user/userSlice';
-
+import AuthService from '../../app/services/authService'
+import { useTypedSelector, useAppDispatch } from '../../hooks/redux';
+import {setLoading} from '../../features/user/userSlice'
 type TransitionProps = Omit<SlideProps, 'direction'>;
 
 function TransitionUp(props: TransitionProps) {
@@ -29,19 +24,15 @@ const LoginForm: FC = () => {
 
     const [validForm, setValidForm] = useState(false)
 
-    const [login, {isLoading, data, error}] = useLoginMutation()
-
     const navigate = useNavigate()
 
     const dispatch = useAppDispatch()
 
+    const isLoading = useTypedSelector(state => state.appInfo.isLoading)
+
     const [open, setOpen] = useState(false)
 
-    useEffect(() => {
-        if(error){
-            setOpen(true)
-        }
-    }, [error])
+    const [serverError, setServerError] = useState('')
 
     useEffect(() => {
         const emailRegEx = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -71,21 +62,16 @@ const LoginForm: FC = () => {
         if(!validForm){
             return
         } else {
-            try {
-                login({
-                    email: email,
-                    password: password 
-                }).unwrap().then((userData) => {
-                    dispatch(setCredentials(userData))
-                    // dispatch(setStorageInfo({
-                    //     currentFolder: userData.user._id, 
-                    //     files: userData.user.files,
-                    // }))
-                    navigate('/dashboard')
-                })
-            } catch (e) {
-                console.log(e)
-            }
+            AuthService.login({
+                email: email,
+                password: password 
+            })
+            .then(() => navigate('/dashboard'))
+            .catch(e => {
+                setServerError(e?.response?.data?.message)
+                setOpen(true)
+            })
+            .finally(() => dispatch(setLoading(false)))
         }
     }
 
@@ -129,8 +115,7 @@ const LoginForm: FC = () => {
             <Snackbar
                 open={open}
                 action={<MdErrorOutline size={30}/>}
-                //@ts-ignore
-                message={error?.data?.message}
+                message={serverError}
                 anchorOrigin={{
                     horizontal: 'center',
                     vertical: 'bottom'

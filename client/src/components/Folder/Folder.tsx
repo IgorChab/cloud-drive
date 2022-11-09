@@ -1,14 +1,15 @@
 import React, {FC} from 'react';
 import {FcFolder} from "react-icons/fc";
-import {Grid, Menu, MenuItem, makeStyles} from "@material-ui/core";
+import {Menu, MenuItem, makeStyles} from "@material-ui/core";
 import {useDrag} from 'react-dnd'
+import {useDrop} from 'react-dnd'
 import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags} from 'react-icons/ai'
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
-import {useAppDispatch} from '../../hooks/redux'
+import {useAppDispatch, useTypedSelector} from '../../hooks/redux'
 import {openModal, setCurrentFile} from '../../features/events/eventSlice'
 import {File} from '../../interfaces/user.interface'
 import {openFolder} from '../../features/user/userSlice'
-import {useLazyDeleteFileQuery} from '../../app/services/fileService'
+import FileService from '../../app/services/fileService'
 import {formatBytes} from '../DataList/DataList'
 
 interface Props {
@@ -17,9 +18,6 @@ interface Props {
 
 const Folder: FC<Props> = ({file}) => {
     
-    const [deleteFileQuery, {data}] = useLazyDeleteFileQuery()
-
-    //@ts-ignore
     const [collected, drag, dragPreview] = useDrag({
         type: 'folder',
         item: file,
@@ -28,7 +26,18 @@ const Folder: FC<Props> = ({file}) => {
         },
     })
 
+    // const [{ isOver }, dropRef] = useDrop({
+    //     accept: 'file',
+    //     drop: (item: File) => {},
+    //     collect: (monitor) => ({
+    //         isOver: monitor.isOver()
+    //     })
+    // })
+
     const dispatch = useAppDispatch()
+
+    const currentPath = useTypedSelector(state => state.appInfo.currentPath)
+    const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
 
     const initialState = {
         mouseX: null,
@@ -60,6 +69,14 @@ const Folder: FC<Props> = ({file}) => {
     })
 
     const classes = useStyles()
+
+    const deleteBtnClick = () => {
+        handleClose();
+        FileService.deleteFile({
+            id: file._id, 
+            parentFolderID: currentFolder? currentFolder?._id : currentPath
+        })
+    }
 
     return (
         <>
@@ -103,7 +120,7 @@ const Folder: FC<Props> = ({file}) => {
                     <AiOutlineShareAlt/>
                     Share
                 </MenuItem>
-                <MenuItem className={classes.root} onClick={() => {handleClose(); deleteFileQuery(file._id)}}> 
+                <MenuItem className={classes.root} onClick={deleteBtnClick}> 
                     <AiOutlineDelete/>
                     Delete
                 </MenuItem>

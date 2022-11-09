@@ -7,7 +7,8 @@ import {User, UserDocument} from "../models/user.model";
 import {FileCreationDto} from "../dto/file.dto";
 import {InjectModel} from "@nestjs/mongoose";
 import {FolderDto} from "../dto/folder.dto";
-
+import {v4 as uuidv4 } from 'uuid'
+import { IUser } from "src/interfaces/user.interface";
 @Injectable()
 export class FileService {
     constructor(
@@ -29,9 +30,9 @@ export class FileService {
     }
 
     async createFolder(folderDto: FolderDto, userID){
-
+        console.log(folderDto)
         const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': folderDto.parentFolderId}, {'name': folderDto.parentFolderId}]})
-        const folderPath = path.resolve(__dirname, '../..', 'storage',`${folderDto.currentFolder}`,`${folderDto.folderName}`)
+        const folderPath = path.resolve('storage', `${folderDto.currentFolder}`, `${folderDto.folderName}`)
         const existFolder = fs.existsSync(folderPath)
         
         if(existFolder){
@@ -42,34 +43,29 @@ export class FileService {
             console.log(err)
         })
 
-        // const user = await this.userModel.findById(userID)
-
         const folder = await this.fileModel.create({
             name: folderDto.folderName,
             type: 'dir',
             userID: userID,
             path: folderPath,
+            shareLink: uuidv4()
         })
-        
-        console.log(parentFolder)
-        // if(parentFolder){
-            parentFolder.childs.push(folder.id)
-            await parentFolder.save()
-        // } else {
-        //     user.files.push(folder.id)
-        //     await user.save()
-        // }
+    
+        parentFolder.childs.push(folder.id)
+        await parentFolder.save()
+
         return folder
     }
 
     async uploadFiles(files, userID, currentPath, parentFolderID){
-        return Promise.allSettled(files.map(async (file) => {
+        return Promise.all(files.map(async (file) => {
+            console.log(file.originalname)
             const filePath = path.join(__dirname, '../..', 'storage', currentPath, file.originalname)
 
             const fileExist = fs.existsSync(filePath)
 
             if(fileExist){
-                throw new BadRequestException(`${file.originalname} already exist`);
+                throw new BadRequestException(`some files already exist`);
             }
 
             const user = await this.userModel.findById(userID)
@@ -89,32 +85,43 @@ export class FileService {
                 path: path.join('storage', currentPath, file.originalname),
                 userID: userID,
                 size: file.size,
+                shareLink: uuidv4()
             })
 
             const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': parentFolderID}, {'name': parentFolderID}]})
+            
+            parentFolder.childs.push(uploadedFile.id)
+            parentFolder.size = parentFolder.size + uploadedFile.size
+            await parentFolder.save()
 
-            // if(parentFolder){
-                parentFolder.childs.push(uploadedFile.id)
-                parentFolder.size += uploadedFile.size
-                await parentFolder.save()
-            // } else {
-                user.usedSpace += file.size
-                await user.save()
-            // }
+            user.usedSpace += file.size
+            await user.save()
 
-            return uploadedFile
+            return {user, uploadedFile}
         }))
     }
 
-    async deleteFile(fileID){
-        const file = await this.fileModel.findByIdAndDelete(fileID)
+    async deleteFile(deleteFileDto: {id: string, parentFolderID: string}){
+        console.log(deleteFileDto)
+        const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': deleteFileDto.parentFolderID}, {'name': deleteFileDto.parentFolderID}]})
+        parentFolder.childs = parentFolder.childs.filter(fileID => fileID != deleteFileDto.id)
+
+        const file = await this.fileModel.findByIdAndDelete(deleteFileDto.id)
         file.childs.forEach(async id => {
             await this.fileModel.findByIdAndDelete(id)
         })
+
+        const user = await this.userModel.findById(file.userID)
+        user.usedSpace = user.usedSpace - file.size
+        user.save()
+        parentFolder.size = parentFolder.size - file.size
+        parentFolder.save()
+
         fs.rm(file.path, {recursive: true}, err => {
             console.log(err)
         })
-        return file
+
+        return user
     }
 
     async renameFile(renameFileDto: {newName: string, fileID: string}){
@@ -128,7 +135,7 @@ export class FileService {
         await file.save()
     }
 
-    async getCurrentFolder(id){
+    async getCurrentFolder(id: string){
         return await this.fileModel.findOne({ $or:[ {'_id': id}, {'name': id}]}).populate('childs')
     }
 
@@ -139,5 +146,13 @@ export class FileService {
             throw new ForbiddenException('The requested file was not found or does not belong to you')
         }
         return file
+    }
+
+    async shareFiles(link: string){
+        const file = await this.fileModel.findOne({shareLink: link}).populate('childs')
+        return {
+            fileName: file.name,
+            files: file.type === 'dir'? file.childs : file
+        }
     }
 }

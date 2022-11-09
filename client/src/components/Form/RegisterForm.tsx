@@ -1,13 +1,11 @@
 import React, {FC, useEffect, useState} from 'react';
 import './Form.css'
 import {MdErrorOutline} from 'react-icons/md'
-
 import {TextField, Button, Paper, Snackbar, Slide, SlideProps} from '@material-ui/core'
-
 import { Link, useNavigate } from 'react-router-dom';
-
-import { useRegisterMutation } from '../../app/services/auth'
-
+import AuthService from '../../app/services/authService'
+import {useTypedSelector, useAppDispatch} from '../../hooks/redux'
+import {setLoading} from '../../features/user/userSlice'
 
 type TransitionProps = Omit<SlideProps, 'direction'>;
 
@@ -36,15 +34,15 @@ const RegisterForm: FC = () => {
 
     const [open, setOpen] = useState(false)
 
-    const [register, {isLoading, data, error}] = useRegisterMutation()
+    const [serverError, setServerError] = useState('')
+
+    // const [register, {isLoading, data, error}] = useRegisterMutation()
 
     const navigate = useNavigate()
 
-    useEffect(() => {
-        if(error){
-            setOpen(true)
-        }
-    }, [error])
+    const dispatch = useAppDispatch()
+
+    const isLoading = useTypedSelector(state => state.appInfo.isLoading)
 
     useEffect(() => {
         if(name.trim().length == 0){
@@ -86,19 +84,20 @@ const RegisterForm: FC = () => {
         if(!validForm){
             return
         } else {
-            try {
-                register({
-                    firstName: name,
-                    lastName: surname,
-                    email: email,
-                    password: password 
-                }).then(() => {navigate('/login')})
-            } catch (e) {
-                console.log(e)
-            }
+            AuthService.register({
+                firstName: name,
+                lastName: surname,
+                email: email,
+                password: password 
+            })
+            .then(() => navigate('/login'))
+            .catch(e => {
+                setServerError(e?.response?.data?.message)
+                setOpen(true)
+            })
+            .finally(() => dispatch(setLoading(false)))
         }
     }
-
     return (
         <div className='formContainer'>
             <Paper elevation={10}>
@@ -156,8 +155,7 @@ const RegisterForm: FC = () => {
             <Snackbar
                 open={open}
                 action={<MdErrorOutline size={30}/>}
-                //@ts-ignore
-                message={error?.data?.message}
+                message={serverError}
                 anchorOrigin={{
                     horizontal: 'center',
                     vertical: 'bottom'

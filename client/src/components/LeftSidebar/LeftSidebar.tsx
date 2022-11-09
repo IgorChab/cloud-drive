@@ -9,7 +9,6 @@ import {
     AiOutlineCloud
 } from "react-icons/ai";
 import { useTypedSelector } from '../../hooks/redux';
-import {useLazyDownloadFileQuery} from '../../app/services/fileService'
 
 const LeftSidebar = () => {
 
@@ -17,8 +16,6 @@ const LeftSidebar = () => {
     
     const availableSpace: any= useTypedSelector(state => state.appInfo.user?.availableSpace)
     const usedSpace: any = useTypedSelector(state => state.appInfo.user?.usedSpace)
-
-    const [trigger] = useLazyDownloadFileQuery()
 
     return (
         <div className='w-full'>
@@ -30,7 +27,7 @@ const LeftSidebar = () => {
                         <AiOutlineFolderOpen/>
                         <p>My Drive</p>
                     </div>
-                    <div className='groupItem' onClick={() => trigger("635aacdeec02ff4723c8a066")}>
+                    <div className='groupItem'>
                         <AiOutlineUsergroupAdd/>
                         <p>Shared with me</p>
                     </div>

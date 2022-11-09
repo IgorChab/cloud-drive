@@ -9,9 +9,10 @@ import {
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {useAppDispatch, useTypedSelector} from '../../hooks/redux'
 import {openModal, setCurrentFile} from '../../features/events/eventSlice'
-import {useLazyDeleteFileQuery, useLazyDownloadFileQuery} from '../../app/services/fileService'
-// import {deleteFile} from '../../features/user/userSlice'
+import FileService from '../../app/services/fileService'
+import {deleteFile} from '../../features/user/userSlice'
 import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
+import {useDrag} from 'react-dnd'
 
 interface FileCardProps {
     file: File
@@ -21,9 +22,16 @@ export const FileCard: FC<FileCardProps> = ({file}) => {
 
     const dispatch = useAppDispatch()
 
-    const [deleteFileQuery, {data}] = useLazyDeleteFileQuery()
+    const [collected, drag, dragPreview] = useDrag({
+        type: 'file',
+        item: file,
+        collect: (monitor) => {
+            dragPreview: monitor.isDragging()
+        },
+    })
 
-    const [downloadFile, govno] = useLazyDownloadFileQuery()
+    const currentPath = useTypedSelector(state => state.appInfo.currentPath)
+    const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
    
     const initialState = {
         mouseX: null,
@@ -55,9 +63,22 @@ export const FileCard: FC<FileCardProps> = ({file}) => {
 
     const classes = useStyles()
 
+    const deleteBtnClick = () => {
+        handleClose();
+        FileService.deleteFile({
+            id: file._id, 
+            parentFolderID: currentFolder? currentFolder?._id : currentPath
+        })
+    }
+
   return (
     <>
-        <div className='flex flex-col group cursor-pointer border rounded' title={file.name} onContextMenu={(e) => {handleClick(e); e.stopPropagation()}}>
+        <div 
+            className='flex flex-col group cursor-pointer border rounded'
+            title={file.name}
+            onContextMenu={(e) => {handleClick(e); e.stopPropagation()}}
+            ref={drag}
+        >
                 <FileTypeImage type={file.type} size={80} path={file.path}/>
             <div className='flex items-center gap-2 border-t w-full p-[10px] group-hover:bg-slate-100'>
                 <FileTypeImage type={file.type}/>
@@ -75,7 +96,7 @@ export const FileCard: FC<FileCardProps> = ({file}) => {
                 : undefined
             }
         >
-            <MenuItem className={classes.root} onClick={() => {handleClose(); downloadFile(file._id)}}>
+            <MenuItem className={classes.root} onClick={() => {handleClose()}}>
                 <AiOutlineDownload/>
                 Download
             </MenuItem>
@@ -87,7 +108,7 @@ export const FileCard: FC<FileCardProps> = ({file}) => {
                 <AiOutlineShareAlt/>
                 Share
             </MenuItem>
-            <MenuItem className={classes.root} onClick={() => {handleClose(); deleteFileQuery(file._id)}}>
+            <MenuItem className={classes.root} onClick={deleteBtnClick}>
                 <AiOutlineDelete/>
                 Delete
             </MenuItem>

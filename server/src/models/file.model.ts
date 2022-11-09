@@ -1,5 +1,6 @@
 import {Schema, Prop, SchemaFactory} from '@nestjs/mongoose'
 import mongoose, {Document, ObjectId} from 'mongoose'
+import { IUser } from 'src/interfaces/user.interface'
 
 export type FileDocument = File & Document
 
@@ -15,7 +16,7 @@ export class File {
     path: string
 
     @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User'})
-    userID: number
+    userID: string | IUser
 
     @Prop({default: 0})
     size: number
@@ -24,7 +25,13 @@ export class File {
     date: string
 
     @Prop({type: [mongoose.Schema.Types.ObjectId], ref: 'File', default: []})
-    childs: ObjectId[]
+    childs: string[]
+
+    @Prop()
+    shareLink: string
+
+    @Prop()
+    tag: string
 }
 
 export const FileSchema = SchemaFactory.createForClass(File)

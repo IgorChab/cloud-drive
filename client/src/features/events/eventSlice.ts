@@ -14,8 +14,10 @@ interface InitialState {
     currentFile: File
     uploadProgressModal: {
         open: boolean,
-        files: any[] | null
-    }
+        files: any[] | [],
+        status: string
+    },
+    dialogOpen: boolean
 }
 
 
@@ -29,8 +31,10 @@ const eventSlice = createSlice({
         currentFile: {},
         uploadProgressModal: {
             open: false,
-            files: null
-        }
+            files: [],
+            status: 'loading'
+        },
+        dialogOpen: false
     } as InitialState,
     name: 'event',
     reducers: {
@@ -51,9 +55,18 @@ const eventSlice = createSlice({
             state.uploadProgressModal.open = true
             state.uploadProgressModal.files = files
         },
+        updateStatusProgressModal: (state, {payload: status}: PayloadAction<string>) => {
+            state.uploadProgressModal.status = status
+        },
         closeUploadProgressModal: state => {
             state.uploadProgressModal.open = false
             state.uploadProgressModal.files = []
+        },
+        openDialog: state => {
+            state.dialogOpen = true
+        },
+        closeDialog: state => {
+            state.dialogOpen = false
         }
     }
 })
@@ -63,8 +76,11 @@ export default eventSlice.reducer
 export const {
     closeModal, 
     openModal, 
+    openDialog,
+    closeDialog,
     switchFileContainer, 
     setCurrentFile, 
     closeUploadProgressModal, 
-    openUploadProgressModal
+    openUploadProgressModal,
+    updateStatusProgressModal,
 } = eventSlice.actions

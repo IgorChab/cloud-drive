@@ -1,65 +1,68 @@
-import { createApi, fetchBaseQuery} from "@reduxjs/toolkit/dist/query/react";
-import { baseQueryWithReauth } from "./auth";
-import {File} from '../../interfaces/user.interface'
+import $axios from "../http";
+import {addFile, setFiles, deleteFile, renameFile, setUser} from '../../features/user/userSlice'
+import { openUploadProgressModal, updateStatusProgressModal} from '../../features/events/eventSlice'
+import { store } from "../store";
+import {File, User} from '../../interfaces/user.interface'
 
-export const fileApi = createApi({
-    reducerPath: 'fileApi',
-    baseQuery: baseQueryWithReauth,
-    tagTypes: ['File'],  
-    endpoints: build => ({
-        uploadFiles: build.mutation<File[], FormData>({
-            query: (formData) => ({
-                url: 'files/uploadFiles',
-                method: 'post',
-                body: formData,
-            }),
-            invalidatesTags: ['File'],
-        }),
-        deleteFile: build.query<File, string>({
-            query: (id) => ({
-                url: `files/deleteFile/${id}`,
-                method: 'delete',
-            }),
-            //@ts-ignore
-            invalidatesTags: ['File']
-        }),
-        createFolder: build.mutation<File, {currentFolder: string | null, folderName: string, parentFolderId: string}>({
-            query: (folderCreationDto) => ({
-                url: `files/createFolder`,
-                method: 'post',
-                body: folderCreationDto
-            }),
-            invalidatesTags: ['File']
-        }),
-        renameFile: build.mutation<File, {newName: string, fileID: string}>({
-            query: (renameFileDto) => ({
-                url: `files/renameFile`,
-                method: 'post',
-                body: renameFileDto
-            }),
-            invalidatesTags: ['File']
-        }),
-        getCurrentFolder: build.query<File, string>({
-            query: (id) => ({
-                url: `files/getCurrentFolder`,
-                method: 'post',
-                body: {fileID: id}
-            }),
-            providesTags: (result, error, id) => [{ type: 'File', id }],
-        }),
-        downloadFile: build.query<void, string>({
-            query: (id) => ({
-                url: `files/downloadFile/${id}`,
-            })
-        })
-    })
-})
+interface folderCreationDto {
+    currentFolder: string | null
+    folderName: string
+    parentFolderId: string
+}
 
-export const {
-    useCreateFolderMutation,
-    useLazyDeleteFileQuery,
-    useRenameFileMutation,
-    useUploadFilesMutation,
-    useLazyGetCurrentFolderQuery,
-    useLazyDownloadFileQuery
-} = fileApi
+interface renameFileDto {
+    newName: string
+    fileID: string
+}
+
+interface deleteFileDto {
+    id: string 
+    parentFolderID: string
+}
+
+export const controller = new AbortController()
+
+class FileService {
+    static async uploadFiles(files: any, fd: FormData): Promise<void>{
+        controller.signal.addEventListener('abort', () => alert('File upload canceled!'))
+        files.forEach((file: any) => {
+            fd.append('files', file)
+        });
+        store.dispatch(openUploadProgressModal(files))
+        try{
+            const response = await $axios.post<{user: User, uploadedFile: File[]}>('files/uploadFiles', fd, {signal: controller.signal})
+            console.log(response)
+            store.dispatch(addFile(response.data.uploadedFile))
+            store.dispatch(setUser(response.data.user))
+            store.dispatch(updateStatusProgressModal('success'))
+        } catch(e) {
+            console.log(e)
+            store.dispatch(updateStatusProgressModal('error'))
+        }
+    }
+
+    static async deleteFile(deleteFileDto: deleteFileDto){
+        const response = await $axios.post<User>(`files/deleteFile`, deleteFileDto)
+        store.dispatch(deleteFile(deleteFileDto.id))
+        store.dispatch(setUser(response.data))
+    }
+
+    static async createFolder(folderDto: folderCreationDto): Promise<File>{
+        const response = await $axios.post<File>('files/createFolder', folderDto)
+        console.log(response.data)
+        store.dispatch(addFile(response.data))
+        return response.data
+    }
+
+    static async renameFile(renameFileDto: renameFileDto){
+        const response = await $axios.post('files/renameFile', renameFileDto)
+        store.dispatch(renameFile(renameFileDto))
+    }
+
+    static async getCurrentFolder(id: string){
+        const response = await $axios.get<File>(`files/getCurrentFolder/${id}`)
+        store.dispatch(setFiles(response.data.childs))
+    }
+}
+
+export default FileService

@@ -33,10 +33,6 @@ export class AuthService{
         return user
     }
 
-    async getAllUsers(): Promise<IUser[]> {
-        return this.userModel.find()
-    }
-
     async login(props: LoginUserDto): Promise<UserData> {
         const user: IUser = await this.userModel.findOne({email: props.email})
         if(!user){
@@ -55,6 +51,11 @@ export class AuthService{
             ...tokens,
             user
         }
+    }
+
+    async logout(id: string){
+        console.log(id)
+        await this.tokenModel.findOne({userID: id}).remove()
     }
 
     async refresh(refreshToken: string){
@@ -97,6 +98,5 @@ export class AuthService{
             throw new UnauthorizedException('Пользователь не авторизован')
         }
     }
-
 
 }
