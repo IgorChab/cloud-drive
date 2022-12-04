@@ -54,8 +54,7 @@ export class AuthService{
     }
 
     async logout(id: string){
-        console.log(id)
-        await this.tokenModel.findOne({userID: id}).remove()
+        await this.tokenModel.deleteOne({userID: id})
     }
 
     async refresh(refreshToken: string){

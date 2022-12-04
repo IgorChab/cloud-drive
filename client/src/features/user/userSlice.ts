@@ -11,6 +11,8 @@ interface UserState {
     isAuth: boolean
     isLoading: boolean
     pinnedFolders: File[]
+    filterFiles: File[],
+    filter: boolean
 }
 
 export const userSlice = createSlice({
@@ -24,7 +26,9 @@ export const userSlice = createSlice({
         files: [],
         isAuth: false,
         isLoading: false,
-        pinnedFolders: []
+        pinnedFolders: [],
+        filterFiles: [],
+        filter: false
     } as UserState,
     reducers: {
         setLoading: (state, {payload: bool}: PayloadAction<boolean>) => {
@@ -51,6 +55,11 @@ export const userSlice = createSlice({
                     file.name = renameDto.newName
                 }
             })
+            state.pinnedFolders.forEach(file => {
+                if(file._id == renameDto.fileID){
+                    file.name = renameDto.newName
+                }
+            })
         },
         deleteFile: (state, {payload: id}: PayloadAction<string>) => {
             state.files = state.files.filter(file => file._id !== id)
@@ -69,10 +78,8 @@ export const userSlice = createSlice({
                 state.folderStack.push(folder)
                 state.currentPath += `/${folder.name}`
                 state.currentFolder = state.folderStack[state.folderStack.length - 1]
+                state.filterFiles = []
             }
-        },
-        openPinnedFolder: (state, {payload: folder}: PayloadAction<File>) => {
-            // state.folderStack = folder.path.split('\\').slice(state.currentPath)
         },
         closeFolder: (state, {payload: folder}: PayloadAction<File>) => {
             state.folderStack = state.folderStack.slice(0, state.folderStack.findIndex(file => file._id === folder._id) + 1)
@@ -85,7 +92,55 @@ export const userSlice = createSlice({
             state.currentPath = state.user!._id
         },
         addPinnedFolder: (state, {payload: folder}: PayloadAction<File>) => {
-            state.pinnedFolders.push(folder)
+            if(!state.pinnedFolders.find(el => el._id === folder._id)){
+                state.pinnedFolders.push(folder)
+            }
+        },
+        unpinFolder: (state, {payload: folderId}: PayloadAction<string>) => {
+            state.pinnedFolders = state.pinnedFolders.filter(folder => folder._id !== folderId)
+        },
+        filterFilesByName: (state, {payload: name}: PayloadAction<string>) => {
+            state.filter = true
+            if(name.trim().length === 0){
+                state.filter = false
+            }
+            state.filterFiles = state.files.filter(file => {
+                if(file.name.toLowerCase().includes(name)){
+                    return file
+                }
+            })
+        },
+        filterFilesByType: (state, {payload: category}: PayloadAction<'media' | 'documents' | 'others'>) => {
+            state.filter = true
+            let media = ['.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp', '.mpeg', '.mp4', '.ogg', '.webm']
+            let documents = ['.docx', '.doc', '.txt', '.pdf']
+            switch (category) {
+                case 'media':
+                    state.filterFiles = state.files.filter(file => {
+                        if(media.includes(file.type)){
+                            return file
+                        }
+                    })
+                    break;
+                case 'documents':
+                    state.filterFiles = state.files.filter(file => {
+                        if(documents.includes(file.type)){
+                            return file
+                        }
+                    })
+                    break;
+                default:
+                    state.filterFiles = state.files.filter(file => {
+                        if(!documents.includes(file.type) && !media.includes(file.type)){
+                            return file
+                        }
+                    })
+                    break;
+            }
+        },
+        removeFilters: state => {
+            state.filterFiles = []
+            state.filter = false
         }
     }
 })
@@ -103,5 +158,10 @@ export const {
     openFolder, 
     closeAllFolders,
     addPinnedFolder,
+    unpinFolder,
+    filterFilesByName,
+    filterFilesByType,
+    removeFilters
 } = userSlice.actions
+
 export default userSlice.reducer

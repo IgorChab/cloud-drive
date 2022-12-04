@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from 'react';
 import './Form.css'
 import {MdErrorOutline} from 'react-icons/md'
-import {TextField, Button, Paper, Snackbar, Slide, SlideProps} from '@material-ui/core'
+import {TextField, Button, Paper, Snackbar, Slide, SlideProps, makeStyles, SnackbarContent} from '@material-ui/core'
 import { Link, useNavigate } from 'react-router-dom';
 import AuthService from '../../app/services/authService'
 import {useTypedSelector, useAppDispatch} from '../../hooks/redux'
@@ -35,8 +35,6 @@ const RegisterForm: FC = () => {
     const [open, setOpen] = useState(false)
 
     const [serverError, setServerError] = useState('')
-
-    // const [register, {isLoading, data, error}] = useRegisterMutation()
 
     const navigate = useNavigate()
 
@@ -98,6 +96,16 @@ const RegisterForm: FC = () => {
             .finally(() => dispatch(setLoading(false)))
         }
     }
+
+    const useStyles = makeStyles({
+        root: {
+            backgroundColor: 'rgb(251, 67, 67)',
+            color: '#fff'
+        }
+    })
+
+    const classes = useStyles()
+
     return (
         <div className='formContainer'>
             <Paper elevation={10}>
@@ -154,7 +162,6 @@ const RegisterForm: FC = () => {
             </Paper>
             <Snackbar
                 open={open}
-                action={<MdErrorOutline size={30}/>}
                 message={serverError}
                 anchorOrigin={{
                     horizontal: 'center',
@@ -163,7 +170,13 @@ const RegisterForm: FC = () => {
                 onClose={() => setOpen(false)}
                 autoHideDuration={3000}
                 TransitionComponent={TransitionUp}
-            />
+            >
+                <SnackbarContent
+                    action={<MdErrorOutline size={30}/>}
+                    message={serverError}
+                    classes={{root: classes.root}}
+                />
+            </Snackbar>
         </div>
     );
 };

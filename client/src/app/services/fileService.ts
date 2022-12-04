@@ -63,6 +63,11 @@ class FileService {
         const response = await $axios.get<File>(`files/getCurrentFolder/${id}`)
         store.dispatch(setFiles(response.data.childs))
     }
+
+    static async moveFile(moveFileDto: {parentFolderId: string, movingFileId: string, targetFolderId: string}){
+        const response = await $axios.post('files/moveFile', moveFileDto)
+        store.dispatch(setFiles(response.data.childs))
+    }
 }
 
 export default FileService

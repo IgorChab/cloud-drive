@@ -60,7 +60,7 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
         mouseY: null | number;
     }>(initialState);
     
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>, file: File) => {
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         console.log(event)
         let target = event.target as HTMLElement;
@@ -91,13 +91,9 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
     }
   }
 
-  // const getRowData = (file: any) => {
-  //   return file;
-  // };
-
   return (
     <>
-      <div className='overflow-auto'>
+      <div className='overflow-auto' onContextMenu={handleClick}>
         <DataGrid 
           rows={rows} 
           columns={columns}
@@ -107,7 +103,6 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
           onRowDoubleClick={handleOpen}
           disableSelectionOnClick
           density='comfortable'
-          // getRowId={getRowData}
           sx={{
             "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
               outline: "none !important",

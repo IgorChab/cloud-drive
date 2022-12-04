@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from 'react';
 import './Form.css'
 import {MdErrorOutline} from 'react-icons/md'
-import {TextField, Button, Paper, Slide, SlideProps, Snackbar} from '@material-ui/core'
+import {TextField, Button, Paper, Slide, SlideProps, Snackbar, SnackbarContent, makeStyles} from '@material-ui/core'
 import { useNavigate, Link } from 'react-router-dom';
 import AuthService from '../../app/services/authService'
 import { useTypedSelector, useAppDispatch } from '../../hooks/redux';
@@ -75,6 +75,15 @@ const LoginForm: FC = () => {
         }
     }
 
+    const useStyles = makeStyles({
+        root: {
+            backgroundColor: 'rgb(251, 67, 67)',
+            color: '#fff'
+        }
+    })
+
+    const classes = useStyles()
+
     return (
         <div className='formContainer'>
             <Paper elevation={10}>
@@ -114,8 +123,6 @@ const LoginForm: FC = () => {
             </Paper>
             <Snackbar
                 open={open}
-                action={<MdErrorOutline size={30}/>}
-                message={serverError}
                 anchorOrigin={{
                     horizontal: 'center',
                     vertical: 'bottom'
@@ -123,7 +130,13 @@ const LoginForm: FC = () => {
                 onClose={() => setOpen(false)}
                 autoHideDuration={3000}
                 TransitionComponent={TransitionUp}
-            />
+            >
+                <SnackbarContent
+                    action={<MdErrorOutline size={30}/>}
+                    message={serverError}
+                    classes={{root: classes.root}}
+                />
+            </Snackbar>  
         </div>
     );
 };

@@ -13,7 +13,10 @@ export const UploadProgressModal: FC = () => {
 
     const uploadInfo = useTypedSelector(state => state.event.uploadProgressModal)
 
-    console.log(uploadInfo.files)
+    const handleFetchClose = () => {
+        dispatch(closeUploadProgressModal()); 
+        controller.abort()
+    }
 
   return (
     <div className='absolute inset-0' onContextMenu={e => e.stopPropagation()} onClick={() => dispatch(closeUploadProgressModal())}>
@@ -29,7 +32,7 @@ export const UploadProgressModal: FC = () => {
                     <Button 
                         variant='text' 
                         color='secondary' 
-                        onClick={() => {dispatch(closeUploadProgressModal()); controller.abort()}}>
+                        onClick={handleFetchClose}>
                         cancel
                     </Button>
                 </div>
@@ -46,23 +49,8 @@ export const UploadProgressModal: FC = () => {
                             {uploadInfo.status == 'success' && <AiFillCheckCircle size={24} className='text-green-500'/>}
                             {uploadInfo.status == 'error' && <BiErrorCircle size={24} className='text-red-500'/>}
                         </div>
-                        {/* {isError && error && <p className='text-red-500 text-sm'>{error?.data?.message}</p>} */}
                     </div>
                 ))}
-                {/* {isSuccess && data.map((file: any, i: number) => (
-                     <div className='flex flex-col mb-1' key={file.value?._id || i}>
-                        <div className='flex items-center justify-between'>
-                            <div className='flex items-center gap-2'>
-                                <AiOutlineFile/>
-                                <p>{file?.value?.name || file?.reason?.message.slice(0, file.reason.message.indexOf('already'))}</p>
-                            </div>
-                            {isLoading && <AiOutlineLoading className='animate-spin text-blue-400' size={24}/>}
-                            {isSuccess && file.status == 'fulfilled' && <AiFillCheckCircle size={24} className='text-green-500'/>}
-                            {isSuccess && file.status == 'rejected' && <BiErrorCircle size={24} className='text-red-500'/>}
-                        </div>
-                        {isSuccess && file.status == 'rejected' && <p className='text-red-500 text-sm'>{file.reason.message}</p>}
-                    </div>
-                ))} */}
             </div>
         </div>
     </div>

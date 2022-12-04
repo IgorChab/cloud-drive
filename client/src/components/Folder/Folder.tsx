@@ -1,9 +1,9 @@
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {FcFolder} from "react-icons/fc";
-import {Menu, MenuItem, makeStyles} from "@material-ui/core";
+import {Menu, MenuItem, makeStyles, Snackbar, Slide, SlideProps, SnackbarContent} from "@material-ui/core";
 import {useDrag} from 'react-dnd'
 import {useDrop} from 'react-dnd'
-import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags} from 'react-icons/ai'
+import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags, AiOutlineCopy} from 'react-icons/ai'
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {useAppDispatch, useTypedSelector} from '../../hooks/redux'
 import {openModal, setCurrentFile} from '../../features/events/eventSlice'
@@ -16,28 +16,44 @@ interface Props {
     file: File
 }
 
+type TransitionProps = Omit<SlideProps, 'direction'>;
+
+function TransitionUp(props: TransitionProps) {
+  return <Slide {...props} direction="up"/>;
+}
+
 const Folder: FC<Props> = ({file}) => {
+
+    const dispatch = useAppDispatch()
+
+    const [open, setOpen] = useState(false)
+
+    const currentPath = useTypedSelector(state => state.appInfo.currentPath)
+    const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
     
     const [collected, drag, dragPreview] = useDrag({
-        type: 'folder',
+        type: 'file',
         item: file,
         collect: (monitor) => {
             dragPreview: monitor.isDragging()
         },
     })
 
-    // const [{ isOver }, dropRef] = useDrop({
-    //     accept: 'file',
-    //     drop: (item: File) => {},
-    //     collect: (monitor) => ({
-    //         isOver: monitor.isOver()
-    //     })
-    // })
-
-    const dispatch = useAppDispatch()
-
-    const currentPath = useTypedSelector(state => state.appInfo.currentPath)
-    const currentFolder = useTypedSelector(state => state.appInfo.currentFolder)
+    const [{ isOver }, drop] = useDrop({
+        accept: 'file',
+        drop: (movingFile: File) => {
+            if(movingFile._id !== file._id){
+                FileService.moveFile({
+                    parentFolderId: currentFolder?._id || currentPath,
+                    movingFileId: movingFile._id,
+                    targetFolderId: file._id
+                })
+            }
+        },
+        collect: (monitor) => ({
+            isOver: monitor.isOver()
+        })
+    })
 
     const initialState = {
         mouseX: null,
@@ -49,7 +65,7 @@ const Folder: FC<Props> = ({file}) => {
         mouseY: null | number;
     }>(initialState);
     
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>, file: File) => {
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         dispatch(setCurrentFile(file))
         setState({
@@ -70,6 +86,11 @@ const Folder: FC<Props> = ({file}) => {
 
     const classes = useStyles()
 
+    const handleDoubleClick = () => {
+        dispatch(openFolder(file));
+        dispatch(setCurrentFile(file))
+    }
+
     const deleteBtnClick = () => {
         handleClose();
         FileService.deleteFile({
@@ -78,17 +99,29 @@ const Folder: FC<Props> = ({file}) => {
         })
     }
 
+    const renameBtnClick = () => {
+        handleClose(); 
+        dispatch(openModal('rename'))
+    }
+
+    const shareBtnClick = () => {
+        navigator.clipboard.writeText(`http://localhost:3000/shareFiles/${file.shareLink}`)
+        handleClose(); 
+        setOpen(true)
+    }
+
     return (
         <>
             <div
                 className='cursor-pointer flex flex-col items-center'
-                ref={drag}
-                onContextMenu={(e) => {handleClick(e, file); e.stopPropagation()}}
-                onDoubleClick={() => {dispatch(openFolder(file)); dispatch(setCurrentFile(file))}}
+                ref={(node) => drag(drop(node))}
+                title={file.name}
+                onContextMenu={handleClick}
+                onDoubleClick={handleDoubleClick}
             >
-                <FcFolder size={100}/>
+                <FcFolder size={100} color={'red'}/>
                 <div className='flex items-center flex-col text-base mt-[-10px]'>
-                    <p className='font-medium text-lg text-black/[85%]'>{file.name}</p>
+                    <p className='font-medium text-lg text-black/[85%] whitespace-nowrap text-ellipsis overflow-hidden w-[100px] text-center'>{file.name}</p>
                     <p className='text-black/[45%] font-bold'>{file.childs.length} Items</p>
                     <p className='font-bold text-black/[25%] capitalize'>{formatBytes(file.size)}</p>
                 </div>
@@ -108,7 +141,7 @@ const Folder: FC<Props> = ({file}) => {
                     <AiOutlineDownload/>
                     Download
                 </MenuItem>
-                <MenuItem className={classes.root} onClick={() => {handleClose(); dispatch(openModal('rename'))}}>
+                <MenuItem className={classes.root} onClick={renameBtnClick}>
                     <MdOutlineDriveFileRenameOutline/>
                     Rename
                 </MenuItem>
@@ -116,15 +149,31 @@ const Folder: FC<Props> = ({file}) => {
                     <AiOutlineTags/>
                     Add tag
                 </MenuItem>
-                <MenuItem className={classes.root}>
+                <MenuItem className={classes.root} onClick={shareBtnClick}>
                     <AiOutlineShareAlt/>
-                    Share
+                    Copy share link
                 </MenuItem>
                 <MenuItem className={classes.root} onClick={deleteBtnClick}> 
                     <AiOutlineDelete/>
                     Delete
                 </MenuItem>
             </Menu>
+            <Snackbar
+                open={open}
+                anchorOrigin={{
+                    horizontal: 'center',
+                    vertical: 'bottom'
+                }}
+                onClose={() => setOpen(false)}
+                autoHideDuration={3000}
+                TransitionComponent={TransitionUp}
+            >
+                <SnackbarContent
+                    action={<AiOutlineCopy size={24}/>}
+                    message='Link copied!'
+                    style={{backgroundColor: '#1890FF'}}
+                />
+            </Snackbar>  
         </>
     );
 };

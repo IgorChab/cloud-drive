@@ -22,6 +22,10 @@ export const ShareFile = () => {
             setFileName(res.data.fileName)
         })
     }, [])
+    
+    const handleDataList = () => {
+        setDataList(!dataList)
+    }
 
   return (
     <div>
@@ -34,7 +38,7 @@ export const ShareFile = () => {
                 <Button color='primary'>
                     Download all
                 </Button>
-                <Button onClick={() => setDataList(!dataList)}>
+                <Button onClick={handleDataList}>
                     {dataList? <TbGridDots size={24}/> : <AiOutlineUnorderedList size={24}/>}
                 </Button>
             </div>

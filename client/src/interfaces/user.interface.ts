@@ -6,7 +6,9 @@ export interface File {
     path: string
     date: string
     type: string
+    items: number
     childs: File[]
+    shareLink: string
 }
 
 export interface User {

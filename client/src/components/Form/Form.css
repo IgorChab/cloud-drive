@@ -12,8 +12,3 @@
 .wrapLink{
     @apply flex gap-[5px] justify-center
 }
-
-.MuiSnackbarContent-root{
-    background-color: rgb(251, 67, 67) !important;
-    color: #fff !important;
-}

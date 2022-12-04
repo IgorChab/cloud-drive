@@ -1,10 +1,11 @@
-import React, { FC } from 'react'
+import React, { FC, useState} from 'react'
 import { File } from '../../interfaces/user.interface'
-import {Menu, MenuItem, makeStyles} from "@material-ui/core";
+import {Menu, MenuItem, makeStyles, Snackbar, SnackbarContent, Slide, SlideProps} from "@material-ui/core";
 import {
     AiOutlineDelete, 
     AiOutlineDownload, 
-    AiOutlineShareAlt, 
+    AiOutlineShareAlt,
+    AiOutlineCopy
 } from 'react-icons/ai'
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {useAppDispatch, useTypedSelector} from '../../hooks/redux'
@@ -18,9 +19,17 @@ interface FileCardProps {
     file: File
 }
 
+type TransitionProps = Omit<SlideProps, 'direction'>;
+
+function TransitionUp(props: TransitionProps) {
+  return <Slide {...props} direction="up"/>;
+}
+
 export const FileCard: FC<FileCardProps> = ({file}) => {
 
     const dispatch = useAppDispatch()
+    
+    const [open, setOpen] = useState(false)
 
     const [collected, drag, dragPreview] = useDrag({
         type: 'file',
@@ -71,12 +80,28 @@ export const FileCard: FC<FileCardProps> = ({file}) => {
         })
     }
 
+    const renameBtnClick = () => {
+        handleClose(); 
+        dispatch(setCurrentFile(file)); 
+        dispatch(openModal('rename'))
+    }
+
+    const downloadBtnClick = () => {
+        handleClose(); 
+    }
+
+    const shareBtnClick = () => {
+        navigator.clipboard.writeText(`http://localhost:3000/shareFiles/${file.shareLink}`)
+        handleClose(); 
+        setOpen(true)
+    }
+
   return (
     <>
         <div 
             className='flex flex-col group cursor-pointer border rounded'
             title={file.name}
-            onContextMenu={(e) => {handleClick(e); e.stopPropagation()}}
+            onContextMenu={handleClick}
             ref={drag}
         >
                 <FileTypeImage type={file.type} size={80} path={file.path}/>
@@ -96,23 +121,39 @@ export const FileCard: FC<FileCardProps> = ({file}) => {
                 : undefined
             }
         >
-            <MenuItem className={classes.root} onClick={() => {handleClose()}}>
+            <MenuItem className={classes.root} onClick={downloadBtnClick}>
                 <AiOutlineDownload/>
                 Download
             </MenuItem>
-            <MenuItem className={classes.root} onClick={() => {handleClose(); dispatch(setCurrentFile(file)); dispatch(openModal('rename'))}}>
+            <MenuItem className={classes.root} onClick={renameBtnClick}>
                 <MdOutlineDriveFileRenameOutline/>
                 Rename
             </MenuItem>
-            <MenuItem className={classes.root}>
+            <MenuItem className={classes.root} onClick={shareBtnClick}>
                 <AiOutlineShareAlt/>
-                Share
+                Copy share link
             </MenuItem>
             <MenuItem className={classes.root} onClick={deleteBtnClick}>
                 <AiOutlineDelete/>
                 Delete
             </MenuItem>
         </Menu>
+        <Snackbar
+            open={open}
+            anchorOrigin={{
+                horizontal: 'center',
+                vertical: 'bottom'
+            }}
+            onClose={() => setOpen(false)}
+            autoHideDuration={3000}
+            TransitionComponent={TransitionUp}
+        >
+            <SnackbarContent
+                action={<AiOutlineCopy size={24}/>}
+                message='Link copied!'
+                style={{backgroundColor: '#1890FF'}}
+            />
+        </Snackbar>  
     </>
   )
 }

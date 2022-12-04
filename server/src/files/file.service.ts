@@ -112,7 +112,11 @@ export class FileService {
         })
 
         const user = await this.userModel.findById(file.userID)
-        user.usedSpace = user.usedSpace - file.size
+        if(user.usedSpace - file.size < 0){
+            user.usedSpace = 0
+        } else {
+            user.usedSpace = user.usedSpace - file.size
+        }
         user.save()
         parentFolder.size = parentFolder.size - file.size
         parentFolder.save()
@@ -152,7 +156,28 @@ export class FileService {
         const file = await this.fileModel.findOne({shareLink: link}).populate('childs')
         return {
             fileName: file.name,
-            files: file.type === 'dir'? file.childs : file
+            files: file.type === 'dir'? file.childs : [file]
         }
+    }
+
+    async moveFile(moveFileDto){
+        const movingFile = await this.fileModel.findById(moveFileDto.movingFileId)
+        const targetFolder = await this.fileModel.findOne({ $or:[ {'_id': moveFileDto.targetFolderId}, {'name': moveFileDto.targetFolderId}]})
+        const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': moveFileDto.parentFolderId}, {'name': moveFileDto.parentFolderId}]})
+        if(!targetFolder.childs.includes(movingFile.id)){
+
+            fs.rename(movingFile.path, `${targetFolder.path}/${movingFile.name}`, (err) => {
+                console.log(err)
+            })
+
+            targetFolder.childs.push(movingFile.id)
+            targetFolder.size = targetFolder.size + movingFile.size
+            parentFolder.size =  parentFolder.size - movingFile.size
+            parentFolder.childs = parentFolder.childs.filter(fileID => fileID != movingFile.id)
+            await movingFile.save()
+            await targetFolder.save()
+            await parentFolder.save()
+        }
+        return await this.getCurrentFolder(parentFolder.id)
     }
 }

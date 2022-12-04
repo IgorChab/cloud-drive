@@ -11,7 +11,7 @@ function App() {
 
     const isAuth = useTypedSelector(state => state.appInfo.isAuth)
     const appInfo = useTypedSelector(state => state.appInfo)
-    console.log(appInfo)
+    // console.log('render')
 
     useEffect(() => {
         AuthService.checkAuth()

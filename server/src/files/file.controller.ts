@@ -60,4 +60,9 @@ export class FileController {
     async shareFiles(@Param('link') link: string){
         return await this.fileService.shareFiles(link)
     }
+
+    @Post('moveFile')
+    async moveFile(@Body() moveFileDto: {parentFolderId: string, movingFileId: string, targetFolderId: string}){
+        return await this.fileService.moveFile(moveFileDto)
+    }
 }

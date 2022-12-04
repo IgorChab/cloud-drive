@@ -49,9 +49,13 @@ const Modal: FC = () => {
         }
     }
 
+    const handleCloseModal = () => {
+        dispatch(closeModal())
+    }
+
   return (
     <form className='absolute inset-0 bg-black/[54%] flex items-center justify-center z-50' 
-        onClick={() => dispatch(closeModal())} 
+        onClick={handleCloseModal} 
         onSubmitCapture={createFolder}
     >
         <Paper className='w-[350px] p-4 rounded' onClick={e => e.stopPropagation()}>
@@ -67,7 +71,7 @@ const Modal: FC = () => {
                 helperText={error || fileNameError}
             />
             <div className='mt-3 flex gap-3 justify-end'>
-                <Button variant='outlined' color='secondary' size='small' onClick={() => dispatch(closeModal())} >
+                <Button variant='outlined' color='secondary' size='small' onClick={handleCloseModal} >
                     Cancel
                 </Button>
                 <Button variant='outlined' color='primary' size='small' type='submit'>
