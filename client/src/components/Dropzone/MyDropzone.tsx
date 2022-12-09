@@ -33,7 +33,7 @@ const MyDropzone: FC<DropzoneProps> = ({getRootProps, isDragActive, serverError}
 
   return (
     <div className={`h-full ${!dataList  && 'overflow-auto'} ${isDragActive? 'borderAnimate' : ''}`} {...getRootProps()} ref={dropRef}>
-        <div className={`grid ${!dataList && 'grid-cols-5'} gap-3 w-full`} >
+        <div className={`grid ${!dataList && 'grid-cols-5  2xl:grid-cols-7'} gap-3 2xl:gap-6 w-full`}>
             <CurrentFolder/>
         </div>
         {isDragActive && <div className={`hintUpload ${isDragActive && 'animate-bounce'}`}>Drop here to upload file</div>}

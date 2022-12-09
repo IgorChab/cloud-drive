@@ -30,13 +30,11 @@ class FileService {
         });
         store.dispatch(openUploadProgressModal(files))
         try{
-            const response = await $axios.post<{user: User, uploadedFile: File[]}>('files/uploadFiles', fd, {signal: controller.signal})
-            console.log(response)
-            store.dispatch(addFile(response.data.uploadedFile))
+            const response = await $axios.post<{user: User, uploadedFiles: File[]}>('files/uploadFiles', fd, {signal: controller.signal})
+            store.dispatch(addFile(response.data.uploadedFiles))
             store.dispatch(setUser(response.data.user))
             store.dispatch(updateStatusProgressModal('success'))
         } catch(e) {
-            console.log(e)
             store.dispatch(updateStatusProgressModal('error'))
         }
     }

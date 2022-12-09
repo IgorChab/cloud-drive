@@ -8,7 +8,8 @@ import {FileCreationDto} from "../dto/file.dto";
 import {InjectModel} from "@nestjs/mongoose";
 import {FolderDto} from "../dto/folder.dto";
 import {v4 as uuidv4 } from 'uuid'
-import { IUser } from "src/interfaces/user.interface";
+import * as archiver from 'archiver'
+
 @Injectable()
 export class FileService {
     constructor(
@@ -58,8 +59,8 @@ export class FileService {
     }
 
     async uploadFiles(files, userID, currentPath, parentFolderID){
-        return Promise.all(files.map(async (file) => {
-            console.log(file.originalname)
+        const uploadedFiles = await Promise.all(files.map(async (file) => {
+            let originalName = file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
             const filePath = path.join(__dirname, '../..', 'storage', currentPath, file.originalname)
 
             const fileExist = fs.existsSync(filePath)
@@ -78,11 +79,11 @@ export class FileService {
                 console.log(err)
             })
 
-            const typeFileArr = file.originalname.split('.')
+            const typeFileArr = originalName.split('.')
             const uploadedFile = await this.fileModel.create({
-                name: file.originalname,
+                name: originalName,
                 type: '.' + typeFileArr[typeFileArr.length - 1],
-                path: path.join('storage', currentPath, file.originalname),
+                path: path.join('storage', currentPath, originalName),
                 userID: userID,
                 size: file.size,
                 shareLink: uuidv4()
@@ -97,8 +98,13 @@ export class FileService {
             user.usedSpace += file.size
             await user.save()
 
-            return {user, uploadedFile}
+            return uploadedFile
         }))
+        const user = await this.userModel.findById(userID)
+        return {
+            uploadedFiles,
+            user
+        }
     }
 
     async deleteFile(deleteFileDto: {id: string, parentFolderID: string}){
@@ -143,19 +149,46 @@ export class FileService {
         return await this.fileModel.findOne({ $or:[ {'_id': id}, {'name': id}]}).populate('childs')
     }
 
-    async downloadFile(fileID, userID){
-        const file = await this.fileModel.findOne({ $and:[ {'_id': fileID}, {'userID': userID}]})
-        console.log(file)
-        if(!file){
-            throw new ForbiddenException('The requested file was not found or does not belong to you')
-        }
-        return file
+    async downloadFile(fileID: string){
+        const file = await this.fileModel.findOne({ $or:[ {'_id': fileID}, {'name': fileID}]})
+        const filePath = path.resolve(process.cwd(), file.path)
+
+        return filePath
+    }
+    
+    async downloadFolder(folderID: string){
+        const file = await this.fileModel.findOne({ $or:[ {'_id': folderID}, {'name': folderID}]})
+        const filePath = path.resolve(process.cwd(), file.path)
+
+        const output = fs.createWriteStream(filePath);
+
+        const archive = archiver('zip');
+
+        output.on('close', function () {
+            console.log(archive.pointer() + ' total bytes');
+            console.log('archiver has been finalized and the output file descriptor has closed.');
+        });
+        
+        archive.on('error', function(err){
+            throw err;
+        });
+        
+        archive.pipe(output);
+        
+        archive.directory(filePath, false);
+        
+        archive.finalize();
+
+        return {fileName: file.name, stream: archive}
     }
 
     async shareFiles(link: string){
         const file = await this.fileModel.findOne({shareLink: link}).populate('childs')
+        if(!file){
+            throw new BadRequestException('Invalid share link!')
+        }
         return {
-            fileName: file.name,
+            currentFolder: file,
             files: file.type === 'dir'? file.childs : [file]
         }
     }
@@ -169,7 +202,7 @@ export class FileService {
             fs.rename(movingFile.path, `${targetFolder.path}/${movingFile.name}`, (err) => {
                 console.log(err)
             })
-
+            movingFile.path = `${targetFolder.path}/${movingFile.name}`
             targetFolder.childs.push(movingFile.id)
             targetFolder.size = targetFolder.size + movingFile.size
             parentFolder.size =  parentFolder.size - movingFile.size

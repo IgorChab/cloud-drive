@@ -4,13 +4,14 @@ import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags} fr
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {File} from '../../interfaces/user.interface'
 import {useAppDispatch} from '../../hooks/redux'
-import {openModal, setCurrentFile} from '../../features/events/eventSlice'
+import {openPreviewFile} from '../../features/events/eventSlice'
 import {openFolder} from '../../features/user/userSlice'
 import { DataGrid, GridRowsProp, GridColDef} from '@mui/x-data-grid';
 import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
 
   interface DataGridProps {
     files: File[] | []
+    handleOpenShareFolder?: (folder: File) => void
   }
   
   export function formatBytes(bytes: number, decimals = 2) {
@@ -25,7 +26,7 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
   }
 
-  export const DataList: FC<DataGridProps> = ({files}) => {
+  export const DataList: FC<DataGridProps> = ({files, handleOpenShareFolder}) => {
     
     const columns: GridColDef[] = [
       { field: 'name', headerName: 'Name', width: 300, renderCell: (params) => (
@@ -35,8 +36,8 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
           </div>
         )
       },
-      { field: 'type', headerName: 'Type'},
-      { field: 'date', headerName: 'Date of creation', width: 250},
+      { field: 'type', headerName: 'Type', width: 150},
+      { field: 'date', headerName: 'Date of creation', width: 200},
       { field: 'size', headerName: 'Size'},
     ];
 
@@ -44,113 +45,51 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
       id: file._id,
       name: file.name,
       type: file.type,
-      date: new Date(file.date).toUTCString(),
+      date: new Date(file.date).toLocaleDateString() + ', ' + new Date(file.date).toLocaleTimeString().slice(0, -3),
       size: formatBytes(file.size)
     }))
   
-    const dispatch = useAppDispatch()
-
-    const initialState = {
-        mouseX: null,
-        mouseY: null,
-      };
-      
-    const [state, setState] = useState<{
-        mouseX: null | number;
-        mouseY: null | number;
-    }>(initialState);
-    
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        console.log(event)
-        let target = event.target as HTMLElement;
-        console.log(target.innerHTML);
-        // dispatch(setCurrentFile(file))
-        setState({
-            mouseX: event.clientX - 2,
-            mouseY: event.clientY - 4,
-        });
-    };
-    
-    const handleClose = () => {
-        setState(initialState);
-    };
-
-    const useStyles = makeStyles({
-      root: {
-          gap: '10px'
-      }
-  })
-
-  const classes = useStyles()
+  const dispatch = useAppDispatch()
 
   const handleOpen = (params: any) => {
     if(params.row.type === 'dir'){
       const fileIndex = files.findIndex(file => file._id === params.row.id)
-      dispatch(openFolder(files[fileIndex]))
+      if(typeof handleOpenShareFolder === "function"){
+        handleOpenShareFolder(files[fileIndex])
+      } else {
+        dispatch(openFolder(files[fileIndex]))
+      }
+    } else {
+      const fileIndex = files.findIndex(file => file._id === params.row.id)
+      dispatch(openPreviewFile(files[fileIndex]))
     }
   }
 
   return (
-    <>
-      <div className='overflow-auto' onContextMenu={handleClick}>
-        <DataGrid 
-          rows={rows} 
-          columns={columns}
-          autoHeight
-          checkboxSelection
-          hideFooter
-          onRowDoubleClick={handleOpen}
-          disableSelectionOnClick
-          density='comfortable'
-          sx={{
-            "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
-              outline: "none !important",
-            },
-            "&.MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within": {
-              outline: "none !important",
-            },
-            "&.MuiDataGrid-root .MuiDataGrid-cell": {
-              cursor: "pointer"
-            },
-            '&.MuiDataGrid-root .MuiDataGrid-columnSeparator': {
-              visibility: 'hidden',
+    <div className='overflow-auto'>
+      <DataGrid 
+        rows={rows} 
+        columns={columns}
+        autoHeight
+        hideFooter
+        onRowDoubleClick={handleOpen}
+        disableSelectionOnClick
+        density='comfortable'
+        sx={{
+          "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
           },
-        }}
-        />
-      </div>
-      <Menu
-        keepMounted
-        open={state.mouseY !== null}
-        onClose={handleClose}
-        anchorReference="anchorPosition"
-        anchorPosition={
-            state.mouseY !== null && state.mouseX !== null
-            ? { top: state.mouseY, left: state.mouseX }
-            : undefined
-        }
-      >
-          <MenuItem className={classes.root}>
-              <AiOutlineDownload/>
-              Download
-          </MenuItem>
-          <MenuItem className={classes.root} onClick={() => {handleClose(); dispatch(openModal('rename'))}}>
-              <MdOutlineDriveFileRenameOutline/>
-              Rename
-          </MenuItem>
-          <MenuItem className={classes.root}>
-              <AiOutlineTags/>
-              Add tag
-          </MenuItem>
-          <MenuItem className={classes.root}>
-              <AiOutlineShareAlt/>
-              Share
-          </MenuItem>
-          <MenuItem className={classes.root}>
-              <AiOutlineDelete/>
-              Delete
-          </MenuItem>
-      </Menu>
-    </>
+          "&.MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within": {
+            outline: "none !important",
+          },
+          "&.MuiDataGrid-root .MuiDataGrid-cell": {
+            cursor: "pointer"
+          },
+          '&.MuiDataGrid-root .MuiDataGrid-columnSeparator': {
+            visibility: 'hidden',
+        },
+      }}
+      />
+    </div>
   );
 }

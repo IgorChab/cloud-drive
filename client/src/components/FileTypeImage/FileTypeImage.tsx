@@ -67,16 +67,11 @@ interface FileTypeProps {
 export const FileTypeImage: FC<FileTypeProps> = ({type, size, path}) => {
     const t = types.find(el => el.type.includes(type))
     return (
-        path && (image.includes(type) || video.includes(type))
+        path && (image.includes(type))
         ? <>
             {image.includes(type) && 
                 <div className='flex h-full'>
                     <img src={`http://localhost:5000/${path}`} className='rounded-[4px_4px_0px_0px] object-cover'/>
-                </div>}
-        
-            {video.includes(type) && 
-                <div className='flex h-full'>
-                    <video src={`http://localhost:5000/${path}`} controls className='rounded-[4px_4px_0px_0px] object-cover'/>
                 </div>
             }
         </>

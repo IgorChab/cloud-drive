@@ -72,7 +72,7 @@ const RightSidebar = () => {
                     <p className="font-medium text-[#595959] py-2">Type File</p>
                     {activeCategory && 
                         <Chip
-                            label='remove filter'
+                            label='Remove filter'
                             color="secondary"
                             variant="outlined"
                             onDelete={handleRemoveFilter}

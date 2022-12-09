@@ -14,6 +14,7 @@ import {formatBytes} from '../DataList/DataList'
 
 interface Props {
     file: File
+    hideMenu?: boolean
 }
 
 type TransitionProps = Omit<SlideProps, 'direction'>;
@@ -22,7 +23,7 @@ function TransitionUp(props: TransitionProps) {
   return <Slide {...props} direction="up"/>;
 }
 
-const Folder: FC<Props> = ({file}) => {
+const Folder: FC<Props> = ({file, hideMenu}) => {
 
     const dispatch = useAppDispatch()
 
@@ -114,7 +115,7 @@ const Folder: FC<Props> = ({file}) => {
         <>
             <div
                 className='cursor-pointer flex flex-col items-center'
-                ref={(node) => drag(drop(node))}
+                ref={(node) => hideMenu? undefined : drag(drop(node))}
                 title={file.name}
                 onContextMenu={handleClick}
                 onDoubleClick={handleDoubleClick}
@@ -126,54 +127,64 @@ const Folder: FC<Props> = ({file}) => {
                     <p className='font-bold text-black/[25%] capitalize'>{formatBytes(file.size)}</p>
                 </div>
             </div>
-            <Menu
-                keepMounted
-                open={state.mouseY !== null}
-                onClose={handleClose}
-                anchorReference="anchorPosition"
-                anchorPosition={
-                    state.mouseY !== null && state.mouseX !== null
-                    ? { top: state.mouseY, left: state.mouseX }
-                    : undefined
-                }
-            >
-                <MenuItem className={classes.root}>
-                    <AiOutlineDownload/>
-                    Download
-                </MenuItem>
-                <MenuItem className={classes.root} onClick={renameBtnClick}>
-                    <MdOutlineDriveFileRenameOutline/>
-                    Rename
-                </MenuItem>
-                <MenuItem className={classes.root}>
-                    <AiOutlineTags/>
-                    Add tag
-                </MenuItem>
-                <MenuItem className={classes.root} onClick={shareBtnClick}>
-                    <AiOutlineShareAlt/>
-                    Copy share link
-                </MenuItem>
-                <MenuItem className={classes.root} onClick={deleteBtnClick}> 
-                    <AiOutlineDelete/>
-                    Delete
-                </MenuItem>
-            </Menu>
-            <Snackbar
-                open={open}
-                anchorOrigin={{
-                    horizontal: 'center',
-                    vertical: 'bottom'
-                }}
-                onClose={() => setOpen(false)}
-                autoHideDuration={3000}
-                TransitionComponent={TransitionUp}
-            >
-                <SnackbarContent
-                    action={<AiOutlineCopy size={24}/>}
-                    message='Link copied!'
-                    style={{backgroundColor: '#1890FF'}}
-                />
-            </Snackbar>  
+            {!hideMenu &&
+                <>
+                    <Menu
+                        keepMounted
+                        open={state.mouseY !== null}
+                        onClose={handleClose}
+                        anchorReference="anchorPosition"
+                        anchorPosition={
+                            state.mouseY !== null && state.mouseX !== null
+                            ? { top: state.mouseY, left: state.mouseX }
+                            : undefined
+                        }
+                    >
+                        <MenuItem className={classes.root}>
+                            <a 
+                                href={`http://localhost:5000/files/downloadFolder/${file._id}`} 
+                                download
+                                className='flex items-center gap-[10px]'
+                            >
+                                <AiOutlineDownload/>
+                                Download
+                            </a>
+                        </MenuItem>
+                        <MenuItem className={classes.root} onClick={renameBtnClick}>
+                            <MdOutlineDriveFileRenameOutline/>
+                            Rename
+                        </MenuItem>
+                        <MenuItem className={classes.root}>
+                            <AiOutlineTags/>
+                            Add tag
+                        </MenuItem>
+                        <MenuItem className={classes.root} onClick={shareBtnClick}>
+                            <AiOutlineShareAlt/>
+                            Copy share link
+                        </MenuItem>
+                        <MenuItem className={classes.root} onClick={deleteBtnClick}> 
+                            <AiOutlineDelete/>
+                            Delete
+                        </MenuItem>
+                    </Menu>
+                    <Snackbar
+                        open={open}
+                        anchorOrigin={{
+                            horizontal: 'center',
+                            vertical: 'bottom'
+                        }}
+                        onClose={() => setOpen(false)}
+                        autoHideDuration={3000}
+                        TransitionComponent={TransitionUp}
+                    >
+                        <SnackbarContent
+                            action={<AiOutlineCopy size={24}/>}
+                            message='Link copied!'
+                            style={{backgroundColor: '#1890FF'}}
+                        />
+                    </Snackbar> 
+                </>
+            } 
         </>
     );
 };

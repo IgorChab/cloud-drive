@@ -19,16 +19,6 @@ import * as path from 'path'
         ]),
         JwtModule.register({}),
         MulterModule.register({
-            // storage: diskStorage({
-            //     destination: (req, file, cb) => {
-            //         console.log('module', req.body)
-            //         //@ts-ignore
-            //         cb(null, path.resolve(__dirname, '../..', 'storage', `${req.body.currentFolder}`))
-            //     },
-            //     filename: (req, file, cb) => {
-            //         cb(null, file.originalname)
-            //     }
-            // })
             storage: memoryStorage()
         })
     ],

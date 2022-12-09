@@ -48,7 +48,6 @@ const Main = () => {
 
     const handleUpload = (acceptedFiles: any) => {
         dispatch(openUploadProgressModal(acceptedFiles))
-        console.log(acceptedFiles)
         const formData = new FormData()
         formData.append('currentPath', currentPath)
         formData.append('currentFolderID', currentFolder?._id == null? currentPath : currentFolder?._id)

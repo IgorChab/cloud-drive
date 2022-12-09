@@ -17,6 +17,10 @@ interface InitialState {
         files: any[] | [],
         status: string
     },
+    previewFile: {
+        file: File | null
+        open: boolean
+    }
     dialogOpen: boolean
 }
 
@@ -33,6 +37,10 @@ const eventSlice = createSlice({
             open: false,
             files: [],
             status: 'loading'
+        },
+        previewFile: {
+            open: false,
+            file: null
         },
         dialogOpen: false
     } as InitialState,
@@ -67,7 +75,15 @@ const eventSlice = createSlice({
         },
         closeDialog: state => {
             state.dialogOpen = false
-        }
+        },
+        openPreviewFile: (state, {payload: file}: PayloadAction<File> ) => {
+            state.previewFile.open = true
+            state.previewFile.file = file
+        },
+        closePreviewFile: state => {
+            state.previewFile.open = false
+            state.previewFile.file = null
+        },
     }
 })
 
@@ -83,4 +99,6 @@ export const {
     closeUploadProgressModal, 
     openUploadProgressModal,
     updateStatusProgressModal,
+    closePreviewFile,
+    openPreviewFile
 } = eventSlice.actions

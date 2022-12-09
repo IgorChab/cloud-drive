@@ -12,7 +12,6 @@ import {FileService} from "./file.service";
 import {FilesInterceptor} from "@nestjs/platform-express";
 import {FolderDto} from "../dto/folder.dto";
 
-
 @Controller('files')
 export class FileController {
     constructor(private fileService: FileService) {}
@@ -22,7 +21,8 @@ export class FileController {
     @UseInterceptors(FilesInterceptor('files'))
     async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Req() req){
         const uploaded = await this.fileService.uploadFiles(files, req.userID, req.body.currentPath, req.body.currentFolderID)
-        return uploaded[0]
+        console.log(uploaded)
+        return uploaded
     }
 
     @Post('createFolder')
@@ -45,15 +45,22 @@ export class FileController {
     }
 
     @Get('getCurrentFolder/:id')
-    @UseGuards(AuthGuard)
+    // @UseGuards(AuthGuard)
     async getCurrentFolder(@Param('id') fileID: string,){
         return await this.fileService.getCurrentFolder(fileID)
     }
 
     @Get('downloadFile/:id')
-    async downloadFile(@Param('id') fileID: string, @Req() req, @Res() res){
-        const file = await this.fileService.downloadFile(fileID, req.userID)
-        res.download(file.path, file.name)
+    async downloadFile(@Param('id') fileID: string, @Res() res){
+        const filePath = await this.fileService.downloadFile(fileID)
+        return res.download(filePath)
+    }
+
+    @Get('downloadFolder/:id')
+    async downloadFolder(@Param('id') folderID: string, @Res() res){
+        const file = await this.fileService.downloadFolder(folderID)
+        res.attachment(file.fileName + '.zip')
+        return file.stream.pipe(res)
     }
 
     @Get('shareFiles/:link')
