@@ -11,7 +11,7 @@ import { MdOutlineDriveFileRenameOutline } from 'react-icons/md'
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux'
 import { openModal, setCurrentFile } from '../../features/events/eventSlice'
 import FileService from '../../app/services/fileService'
-import { deleteFile } from '../../features/user/userSlice'
+import { setPreviewsFile } from '../../features/user/userSlice'
 import { FileTypeImage } from '../FileTypeImage/FileTypeImage'
 import { useDrag } from 'react-dnd'
 import { openPreviewFile } from '../../features/events/eventSlice'
@@ -96,6 +96,8 @@ export const FileCard: FC<FileCardProps> = ({ file, hideMenu }) => {
     }
 
     const openPreview = () => {
+        dispatch(setPreviewsFile(file))
+        dispatch(setCurrentFile(file))
         dispatch(openPreviewFile(file))
     }
 

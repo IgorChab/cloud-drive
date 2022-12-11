@@ -1,32 +1,95 @@
-import React, { FC } from 'react'
+import React, { FC, useState, useEffect } from 'react'
 
 import { File } from '../../interfaces/user.interface'
 
-import { closePreviewFile } from '../../features/events/eventSlice'
-import { useAppDispatch } from '../../hooks/redux'
+import { closePreviewFile, openModal } from '../../features/events/eventSlice'
+import { setPreviewsFile } from '../../features/user/userSlice'
+
+import { useAppDispatch, useTypedSelector } from '../../hooks/redux'
 
 import { HiOutlineArrowLeft } from 'react-icons/hi'
+import { IoIosArrowBack } from 'react-icons/io'
+import { AiOutlineDownload } from 'react-icons/ai'
+
 import { FileTypeImage } from '../../components/FileTypeImage/FileTypeImage'
+import { AttachmentByFileType } from '../AttachmentByFileType/AttachmentByFileType'
 
-interface PreviewFileProps {
-    file: File
-}
-
-export const PreviewFile: FC<PreviewFileProps> = ({ file }) => {
+export const PreviewFile: FC = () => {
 
     const dispatch = useAppDispatch()
+
+    const previewFile = useTypedSelector(state => state.appInfo.previewFile)
+
+    const files = useTypedSelector(state => state.appInfo.files)
+
+    const [filesWithoutFolders, setFilesWithoutFolders] = useState<File[] | []>([])
 
     const closePreview = () => {
         dispatch(closePreviewFile())
     }
 
+    const handleRenameFile = () => {
+        dispatch(openModal('rename'))
+    }
+
+    useEffect(() => {
+        setFilesWithoutFolders(files.filter(file => file.type !== 'dir'))
+    }, [files])
+
+    const handlePrevious = () => {
+        const currentFileIndex: number = filesWithoutFolders.findIndex(el => el._id === previewFile!._id)
+        const previousFileIndex = currentFileIndex === 0 ? filesWithoutFolders.length - 1 : currentFileIndex - 1
+        const newPreviewFile = filesWithoutFolders[previousFileIndex]
+        dispatch(setPreviewsFile(newPreviewFile))
+    }
+
+    const handleNext = () => {
+        const currentFileIndex: number = filesWithoutFolders.findIndex(el => el._id === previewFile!._id)
+        const nextFileIndex = currentFileIndex === filesWithoutFolders.length - 1 ? 0 : currentFileIndex + 1
+        const newPreviewFile = filesWithoutFolders[nextFileIndex]
+        console.log('currentFileIndex', currentFileIndex)
+        console.log('nextFileIndex', nextFileIndex)
+        console.log('newPreviewFile', newPreviewFile)
+        dispatch(setPreviewsFile(newPreviewFile))
+    }
+
     return (
-        <div className='absolute inset-0 bg-black/70 z-50'>
-            <div className='w-full h-[70px] flex items-center px-7'>
-                <div className='flex items-center gap-3'>
-                    <HiOutlineArrowLeft onClick={closePreview} color='#fff' cursor='pointer' size={20}/>
-                    <FileTypeImage type={file.type} size={20}/>
-                    <p className='text-white'>{file.name}</p>
+        <div className='absolute inset-0 bg-black/80 z-50 px-5'>
+            <div className='flex flex-col w-full h-full relative'>
+                <div className='flex h-[70px] items-center justify-between w-full absolute'>
+                    <div className='flex items-center gap-3'>
+                        <HiOutlineArrowLeft onClick={closePreview} color='#fff' cursor='pointer' size={20} title='Close' />
+                        <FileTypeImage type={previewFile!.type} size={20} />
+                        <p
+                            className='text-white cursor-pointer'
+                            onClick={handleRenameFile}
+                        >
+                            {previewFile!.name}
+                        </p>
+                    </div>
+                    <a
+                        href={`http://localhost:5000/files/downloadFile/${previewFile!._id}`}
+                        download
+                    >
+                        <AiOutlineDownload color='#fff' cursor='pointer' size={20} title='Download' />
+                    </a>
+                </div>
+                <div className='flex justify-between items-center h-full'>
+                    <div
+                        title='Previous'
+                        className='w-[50px] h-[50px] flex items-center justify-center rounded-full bg-black/90 hover:bg-[#1890FF] transition cursor-pointer'
+                        onClick={handlePrevious}
+                    >
+                        <IoIosArrowBack className='text-white group-hover:text-[#1890FF]' />
+                    </div>
+                    <AttachmentByFileType />
+                    <div
+                        title='Next'
+                        className='w-[50px] h-[50px] flex items-center justify-center rounded-full bg-black/90 hover:bg-[#1890FF] transition cursor-pointer'
+                        onClick={handleNext}
+                    >
+                        <IoIosArrowBack className='rotate-180 text-white' />
+                    </div>
                 </div>
             </div>
         </div>

@@ -37,7 +37,7 @@ export const CurrentFolder = () => {
                   ))
         }
         {preview.open && preview.file &&
-            <PreviewFile file={preview.file}/>
+            <PreviewFile />
         }
     </>
   )

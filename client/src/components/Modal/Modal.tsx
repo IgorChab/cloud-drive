@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react'
 import {closeModal} from '../../features/events/eventSlice'
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux'
 import FileService from '../../app/services/fileService';
-// import { setFiles } from '../../features/user/userSlice';
+import { setPreviewsFile } from '../../features/user/userSlice';
 import {Paper, TextField, Button} from '@material-ui/core'
 
 const Modal: FC = () => {
@@ -36,6 +36,7 @@ const Modal: FC = () => {
                 fileID: currentFile._id,
                 newName: fileName
             })
+            .then(() => dispatch(setPreviewsFile({...currentFile, name: fileName})))
             .then(() => dispatch(closeModal()))
             .catch(e => setError(e?.response?.data?.message))
         } else {
@@ -54,7 +55,7 @@ const Modal: FC = () => {
     }
 
   return (
-    <form className='absolute inset-0 bg-black/[54%] flex items-center justify-center z-50' 
+    <form className='absolute inset-0 bg-black/[54%] flex items-center justify-center z-[100]' 
         onClick={handleCloseModal} 
         onSubmitCapture={createFolder}
     >

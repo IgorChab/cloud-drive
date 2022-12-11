@@ -11,8 +11,9 @@ interface UserState {
     isAuth: boolean
     isLoading: boolean
     pinnedFolders: File[]
-    filterFiles: File[],
+    filterFiles: File[]
     filter: boolean
+    previewFile: File | null
 }
 
 export const userSlice = createSlice({
@@ -28,7 +29,8 @@ export const userSlice = createSlice({
         isLoading: false,
         pinnedFolders: [],
         filterFiles: [],
-        filter: false
+        filter: false,
+        previewFile: null
     } as UserState,
     reducers: {
         setLoading: (state, {payload: bool}: PayloadAction<boolean>) => {
@@ -141,6 +143,10 @@ export const userSlice = createSlice({
         removeFilters: state => {
             state.filterFiles = []
             state.filter = false
+        },
+        setPreviewsFile: (state, {payload: file}: PayloadAction<File>) => {
+            console.log(file)
+            state.previewFile = file
         }
     }
 })
@@ -161,7 +167,8 @@ export const {
     unpinFolder,
     filterFilesByName,
     filterFilesByType,
-    removeFilters
+    removeFilters,
+    setPreviewsFile
 } = userSlice.actions
 
 export default userSlice.reducer

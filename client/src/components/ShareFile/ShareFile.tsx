@@ -158,7 +158,7 @@ export const ShareFile = () => {
             </div>
         }
         {preview.open && preview.file &&
-            <PreviewFile file={preview.file}/>
+            <PreviewFile/>
         }
     </div>
   )
