@@ -3,17 +3,15 @@ import { useTypedSelector, useAppDispatch } from '../../hooks/redux';
 import './MyDropzone.css'
 import {UploadProgressModal} from '../UploadProgressModal/UploadProgressModal'
 import { CurrentFolder } from '../CurrentFolder/CurrentFolder';
-import { MyDialog } from '../Dialog/Dialog';
 import {useDrop} from 'react-dnd'
 import {unpinFolder} from '../../features/user/userSlice'
 
 interface DropzoneProps {
     getRootProps: any,
     isDragActive: boolean,
-    serverError?: string
 }
 
-const MyDropzone: FC<DropzoneProps> = ({getRootProps, isDragActive, serverError}) => {
+const MyDropzone: FC<DropzoneProps> = ({getRootProps, isDragActive}) => {
 
     const dispatch = useAppDispatch()
 
@@ -31,14 +29,23 @@ const MyDropzone: FC<DropzoneProps> = ({getRootProps, isDragActive, serverError}
       })
     })
 
+    console.log(isDragActive)
+
   return (
-    <div className={`h-full ${!dataList  && 'overflow-auto'} ${isDragActive? 'borderAnimate' : ''}`} {...getRootProps()} ref={dropRef}>
-        <div className={`grid ${!dataList && 'grid-cols-5  2xl:grid-cols-7'} gap-3 2xl:gap-6 w-full`}>
+    <div {...getRootProps({
+        className: `h-full ${!dataList && 'overflow-y-auto pr-2'} ${isDragActive? 'borderAnimate' : ''}`,
+        ref: dropRef
+      })}
+    >
+        <div className={`grid ${!dataList && 'grid-cols-5 2xl:grid-cols-7'} gap-3 2xl:gap-6`}>
             <CurrentFolder/>
         </div>
-        {isDragActive && <div className={`hintUpload ${isDragActive && 'animate-bounce'}`}>Drop here to upload file</div>}
+        {/* {isDragActive &&
+          <div className='absolute inset-0 flex items-end justify-center pb-[10%]'>
+            <div className={`hintUpload ${isDragActive && 'animate-bounce'}`}>Drop here to upload file</div>
+          </div>
+        } */}
         {uploadProgressModal.open && <UploadProgressModal/>}
-        {serverError && open && <MyDialog errorMsg={serverError}/>}
     </div>
   )
 }

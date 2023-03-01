@@ -7,6 +7,7 @@ import {useAppDispatch, useTypedSelector} from '../../hooks/redux'
 import {closeUploadProgressModal} from '../../features/events/eventSlice'
 import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
 import {controller} from '../../app/services/fileService'
+
 export const UploadProgressModal: FC = () => {
 
     const dispatch = useAppDispatch()
@@ -51,6 +52,7 @@ export const UploadProgressModal: FC = () => {
                         </div>
                     </div>
                 ))}
+                {uploadInfo.status === 'error' && <p className='text-red-500'>Error: {uploadInfo.error}</p>}
             </div>
         </div>
     </div>

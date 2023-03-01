@@ -56,7 +56,7 @@ const RightSidebar = () => {
         <div className='p-[30px_15px]'>
             <div className="flex items-center justify-between font-medium text-[20px] text-black/[85] leading-7">
                 <div className='flex items-center gap-3'>
-                    <BackgroundLetterAvatars fullName='Igor Chabanchuk' />
+                    <BackgroundLetterAvatars fullName={user!.firstName +' '+ user!.lastName} />
                     <div>
                         <p>Hi, {user?.firstName}</p>
                         <p className='font-normal text-sm text-black/[45%]'>Profile Settings</p>

@@ -13,9 +13,10 @@ interface InitialState {
     dataList: boolean
     currentFile: File
     uploadProgressModal: {
-        open: boolean,
-        files: any[] | [],
+        open: boolean
+        files: any[] | []
         status: string
+        error: string
     },
     previewFile: {
         file: File | null
@@ -36,7 +37,8 @@ const eventSlice = createSlice({
         uploadProgressModal: {
             open: false,
             files: [],
-            status: 'loading'
+            status: 'loading',
+            error: ''
         },
         previewFile: {
             open: false,
@@ -63,12 +65,14 @@ const eventSlice = createSlice({
             state.uploadProgressModal.open = true
             state.uploadProgressModal.files = files
         },
-        updateStatusProgressModal: (state, {payload: status}: PayloadAction<string>) => {
+        updateStatusProgressModal: (state, {payload: {status, error}}: PayloadAction<{status: string, error: string}>) => {
             state.uploadProgressModal.status = status
+            state.uploadProgressModal.error = error
         },
         closeUploadProgressModal: state => {
             state.uploadProgressModal.open = false
             state.uploadProgressModal.files = []
+            state.uploadProgressModal.error = ''
         },
         openDialog: state => {
             state.dialogOpen = true

@@ -20,10 +20,6 @@
 }
 
 .hintUpload{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     padding: 20px;
     background: #1890FF;
     font-weight: 500;

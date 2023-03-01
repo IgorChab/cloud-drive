@@ -8,6 +8,7 @@ import {
     AiOutlineDelete,
     AiOutlineCloud
 } from "react-icons/ai";
+import {formatBytes} from '../DataList/DataList'
 import { useTypedSelector } from '../../hooks/redux';
 
 const LeftSidebar = () => {
@@ -72,7 +73,7 @@ const LeftSidebar = () => {
                         <p>Storage</p>
                     </div>
                     <div className="discStorage">
-                        <p className='text-black/[85] text-sm font-normal'>{(usedSpace/(1024**3)).toFixed(2)} GB of {(availableSpace/(1024**3)).toFixed(2)} GB</p>
+                        <p className='text-black/[85] text-sm font-normal'>{formatBytes(usedSpace)} of {(availableSpace/(1024**3)).toFixed(2)} GB</p>
                         <div className="bg-[#D9D9D9] rounded-[100px] w-full h-2">
                             <div className="bg-[#1890FF] rounded-[100px] w-[10%] h-2 " style={{width: `${(usedSpace*100/availableSpace).toFixed(2)}%`}}></div>
                         </div>

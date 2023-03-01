@@ -6,7 +6,7 @@ import {File} from '../../interfaces/user.interface'
 import {useAppDispatch} from '../../hooks/redux'
 import {openPreviewFile} from '../../features/events/eventSlice'
 import {openFolder} from '../../features/user/userSlice'
-import { DataGrid, GridRowsProp, GridColDef} from '@mui/x-data-grid';
+import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
 
   interface DataGridProps {
@@ -66,15 +66,13 @@ import {FileTypeImage} from '../FileTypeImage/FileTypeImage'
   }
 
   return (
-    <div className='overflow-auto'>
+    <div className='h-[500px]'>
       <DataGrid 
         rows={rows} 
         columns={columns}
-        autoHeight
         hideFooter
         onRowDoubleClick={handleOpen}
         disableSelectionOnClick
-        density='comfortable'
         sx={{
           "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
             outline: "none !important",
