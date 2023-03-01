@@ -9,7 +9,7 @@ import * as path from 'path'
 @Module({
   imports: [
       ConfigModule.forRoot(),
-      MongooseModule.forRoot('mongodb://localhost/cloud-drive'),
+      MongooseModule.forRoot('mongodb://127.0.0.1:27017/cloud-drive'),
       ServeStaticModule.forRoot({
           rootPath: path.join(__dirname, '..', 'storage'),
           serveRoot: '/storage'
