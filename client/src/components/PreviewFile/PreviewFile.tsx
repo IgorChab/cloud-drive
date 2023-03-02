@@ -68,7 +68,7 @@ export const PreviewFile: FC = () => {
                         </p>
                     </div>
                     <a
-                        href={`${process.env.SERVER_URL}/files/downloadFile/${previewFile!._id}`}
+                        href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFile/${previewFile!._id}`}
                         download
                     >
                         <AiOutlineDownload color='#fff' cursor='pointer' size={20} title='Download' />

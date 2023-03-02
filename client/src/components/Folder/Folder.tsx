@@ -106,7 +106,7 @@ const Folder: FC<Props> = ({file, hideMenu}) => {
     }
 
     const shareBtnClick = () => {
-        navigator.clipboard.writeText(`${process.env.CLIENT_URL}/shareFiles/${file.shareLink}`)
+        navigator.clipboard.writeText(`${process.env.REACT_APP_CLIENT_URL}/shareFiles/${file.shareLink}`)
         handleClose(); 
         setOpen(true)
     }
@@ -142,7 +142,7 @@ const Folder: FC<Props> = ({file, hideMenu}) => {
                     >
                         <MenuItem className={classes.root}>
                             <a 
-                                href={`${process.env.SERVER_URL}/files/downloadFolder/${file._id}`} 
+                                href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFolder/${file._id}`} 
                                 download
                                 className='flex items-center gap-[10px]'
                             >

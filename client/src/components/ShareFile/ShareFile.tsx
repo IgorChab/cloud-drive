@@ -44,7 +44,7 @@ export const ShareFile = () => {
     }
 
     const getShareFile = (id: string | undefined) => {
-        axios.get<ShareFileResponse>(`${process.env.SERVER_URL}/files/shareFiles/${link}`).then(res => {
+        axios.get<ShareFileResponse>(`${process.env.REACT_APP_SERVER_URL}/files/shareFiles/${link}`).then(res => {
             setFiles(res.data.files)
             setRootFolder(res.data.currentFolder)
             setCurrentFolder(res.data.currentFolder)
@@ -59,7 +59,7 @@ export const ShareFile = () => {
 
     const getCurrentFolder = (folder: File) => {
         setFolderStack([...folderStack, folder])
-        axios.get<File>(`${process.env.SERVER_URL}/files/getCurrentFolder/${folder._id}`).then(res => {
+        axios.get<File>(`${process.env.REACT_APP_SERVER_URL}/files/getCurrentFolder/${folder._id}`).then(res => {
             setFiles(res.data.childs)
         })
         setCurrentFolder(folder)
@@ -107,7 +107,7 @@ export const ShareFile = () => {
                     <div className='flex items-center'>
                         <Button color='primary'>
                             <a 
-                                href={`${process.env.SERVER_URL}/files/downloadFolder/${currentFolder?._id}`} 
+                                href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFolder/${currentFolder?._id}`} 
                                 download
                             >
                                 Download all
@@ -127,7 +127,7 @@ export const ShareFile = () => {
                                     <div key={file?._id} className='relative w-[150px] h-[166px] select-none' onDoubleClick={() => getCurrentFolder(file)}>
                                         <Folder file={file} hideMenu/>
                                         <a 
-                                            href={`${process.env.SERVER_URL}/files/downloadFolder/${file._id}`} 
+                                            href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFolder/${file._id}`} 
                                             download
                                         >
                                             <div className='bg-slate-400 flex items-center justify-center rounded-full w-6 h-6 !absolute !top-3 !right-2 cursor-pointer'>
@@ -139,7 +139,7 @@ export const ShareFile = () => {
                                     <div key={file?._id} className='relative select-none'>
                                         <FileCard file={file} key={file?._id} hideMenu/>
                                         <a 
-                                            href={`${process.env.SERVER_URL}/files/downloadFile/${file._id}`} 
+                                            href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFile/${file._id}`} 
                                             download
                                         >
                                             <div className='bg-slate-400 flex items-center justify-center rounded-full w-6 h-6 !absolute !top-3 !right-3 cursor-pointer'>
