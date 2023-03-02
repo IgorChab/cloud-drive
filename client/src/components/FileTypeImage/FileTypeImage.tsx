@@ -71,7 +71,7 @@ export const FileTypeImage: FC<FileTypeProps> = ({type, size, path}) => {
         ? <>
             {image.includes(type) && 
                 <div className='flex h-full'>
-                    <img src={`http://localhost:5000/${path}`} className='rounded-[4px_4px_0px_0px] object-cover'/>
+                    <img src={`${process.env.SERVER_URL}/${path}`} className='rounded-[4px_4px_0px_0px] object-cover'/>
                 </div>
             }
         </>

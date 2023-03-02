@@ -90,7 +90,7 @@ export const FileCard: FC<FileCardProps> = ({ file, hideMenu }) => {
     }
 
     const shareBtnClick = () => {
-        navigator.clipboard.writeText(`http://localhost:3000/shareFiles/${file.shareLink}`)
+        navigator.clipboard.writeText(`${process.env.CLIENT_URL}/shareFiles/${file.shareLink}`)
         handleClose();
         setOpen(true)
     }
@@ -131,7 +131,7 @@ export const FileCard: FC<FileCardProps> = ({ file, hideMenu }) => {
                     >
                         <MenuItem className={classes.root} onClick={handleClose}>
                             <a
-                                href={`http://localhost:5000/files/downloadFile/${file._id}`}
+                                href={`${process.env.SERVER_URL}/files/downloadFile/${file._id}`}
                                 download
                                 className='flex items-center gap-[10px]'
                             >
