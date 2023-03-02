@@ -7,6 +7,7 @@ import {store, persistor} from "./app/store";
 import { PersistGate } from 'redux-persist/integration/react'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
+require('dotenv').config()
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
