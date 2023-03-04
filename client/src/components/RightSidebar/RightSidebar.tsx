@@ -102,7 +102,7 @@ const RightSidebar = () => {
                 </div>
             </div>
             <div className="mt-[30px] flex flex-col flex-grow">
-                <p className="font-medium text-[#595959] text-sm">Pinned Folders</p>
+                <p className="font-medium text-[#595959] text-sm mb-[10px]">Pinned Folders</p>
                 <div className="flex-grow h-0 overflow-y-auto" ref={dropRef}>
                     {pinnedFolders.map(folder => (
                         <div
