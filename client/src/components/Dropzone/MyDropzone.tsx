@@ -29,8 +29,6 @@ const MyDropzone: FC<DropzoneProps> = ({getRootProps, isDragActive}) => {
       })
     })
 
-    console.log(isDragActive)
-
   return (
     <div {...getRootProps({
         className: `h-full ${!dataList && 'overflow-y-auto pr-2'} ${isDragActive? 'borderAnimate' : ''}`,

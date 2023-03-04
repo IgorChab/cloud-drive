@@ -53,7 +53,7 @@ const RightSidebar = () => {
     }
 
     return (
-        <div className='p-[30px_15px]'>
+        <div className='p-[30px_15px] h-full flex flex-col'>
             <div className="flex items-center justify-between font-medium text-[20px] text-black/[85] leading-7">
                 <div className='flex items-center gap-3'>
                     <BackgroundLetterAvatars fullName={user!.firstName +' '+ user!.lastName} />
@@ -101,9 +101,9 @@ const RightSidebar = () => {
                     <p className="seeAll" onClick={() => handleFilterFiles('others')}>See all</p>
                 </div>
             </div>
-            <div className="mt-[30px]">
+            <div className="mt-[30px] flex flex-col flex-grow">
                 <p className="font-medium text-[#595959] text-sm">Pinned Folders</p>
-                <div className="h-full" ref={dropRef}>
+                <div className="flex-grow h-0 overflow-y-auto" ref={dropRef}>
                     {pinnedFolders.map(folder => (
                         <div
                             onDoubleClick={() => handleDoubleClick(folder)}

@@ -14,7 +14,7 @@ const Dashboard: FC = () => {
             <Grid item xs={7} className='bg-white h-full p-8 flex flex-col'>
                 <Main/>
             </Grid>
-            <Grid item xs className='bg-white border-l border-[#F0F0F0]'>
+            <Grid item xs className='bg-white border-l border-[#F0F0F0] h-full'>
                 <RightSidebar/>
             </Grid>
         </Grid>
