@@ -23,7 +23,7 @@ const PinnedFolder: FC<Props> = ({id, size, items, name, preview}) => {
 
     return (
         <div 
-            className={`border border-[#F5F5F5] p-[12px_30px] gap-6 flex items-center cursor-pointer ${preview? 'justify-center' : 'justify-between'}`}
+            className={`border border-[#F5F5F5] p-[12px_30px] gap-6 flex items-center cursor-pointer ${preview? 'justify-center cursor-default' : 'justify-between'}`}
             title={name}
         >
             {
