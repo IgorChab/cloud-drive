@@ -39,7 +39,7 @@ class AuthServise {
 
     static async checkAuth(){
         try{
-            const response = await axios.get<UserRes>('http://l80.78.247.18:5000/auth/refresh', {withCredentials: true})
+            const response = await axios.get<UserRes>(`${process.env.REACT_APP_SERVER_URL}/auth/refresh`, {withCredentials: true})
             localStorage.setItem('token', response.data.accessToken);
             store.dispatch(setCredentials(response.data))
         } catch(e) {
