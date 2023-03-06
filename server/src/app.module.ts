@@ -18,5 +18,5 @@ import * as path from 'path'
   ],
     controllers: []
 })
-console.log(path.join(__dirname, '..', '..', 'client', 'build'))
+
 export class AppModule {}
