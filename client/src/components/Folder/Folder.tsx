@@ -106,7 +106,7 @@ const Folder: FC<Props> = ({file, hideMenu}) => {
     }
 
     const shareBtnClick = () => {
-        navigator.clipboard.writeText(`${process.env.REACT_APP_SERVE_URL}/shareFiles/${file.shareLink}`)
+        navigator.clipboard.writeText(`${process.env.REACT_APP_CLIENT_URL}/shareFiles/${file.shareLink}`)
         handleClose(); 
         setOpen(true)
     }
