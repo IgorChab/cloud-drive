@@ -12,7 +12,7 @@ import {FileService} from "./file.service";
 import {FilesInterceptor} from "@nestjs/platform-express";
 import {FolderDto} from "../dto/folder.dto";
 
-@Controller('files')
+@Controller('api/files')
 export class FileController {
     constructor(private fileService: FileService) {}
 
@@ -45,7 +45,6 @@ export class FileController {
     }
 
     @Get('getCurrentFolder/:id')
-    // @UseGuards(AuthGuard)
     async getCurrentFolder(@Param('id') fileID: string,){
         return await this.fileService.getCurrentFolder(fileID)
     }

@@ -4,7 +4,6 @@ import {Routes, Route, BrowserRouter, Navigate} from 'react-router-dom'
 import RegisterForm from './components/Form/RegisterForm'; 
 import LoginForm from './components/Form/LoginForm';
 import { useTypedSelector, useAppDispatch } from './hooks/redux';
-import NotFound from './components/404/NotFound';
 import AuthService from './app/services/authService'
 import {ShareFile} from './components/ShareFile/ShareFile'
 function App() {
