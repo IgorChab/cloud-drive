@@ -12,7 +12,7 @@ import {FileService} from "./file.service";
 import {FilesInterceptor} from "@nestjs/platform-express";
 import {FolderDto} from "../dto/folder.dto";
 
-@Controller('api/files')
+@Controller('files')
 export class FileController {
     constructor(private fileService: FileService) {}
 

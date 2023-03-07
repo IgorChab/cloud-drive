@@ -12,6 +12,7 @@ async function bootstrap() {
     origin: 'http://80.78.247.18:3000'
   })
   app.useStaticAssets(join(__dirname, '..', 'storage'))
+  app.setGlobalPrefix('api')
   await app.listen(5000);
 }
 bootstrap();

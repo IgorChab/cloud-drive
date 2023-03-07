@@ -12,7 +12,6 @@ import * as path from 'path'
       MongooseModule.forRoot('mongodb://127.0.0.1:27017/cloud-drive'),
       ServeStaticModule.forRoot({
         rootPath: path.join(__dirname, '..', '..', 'client', 'build'),
-        renderPath: '/static',
         exclude: ['api/*']
       }),
       AuthModule,
