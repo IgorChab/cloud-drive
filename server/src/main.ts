@@ -11,7 +11,7 @@ async function bootstrap() {
     credentials: true,
     origin: 'http://80.78.247.18:3000'
   })
-  app.useStaticAssets(join(__dirname, '..', 'storage'))
+  app.useStaticAssets(join(__dirname, '..', '..', 'client', 'build'))
   await app.listen(5000);
 }
 bootstrap();

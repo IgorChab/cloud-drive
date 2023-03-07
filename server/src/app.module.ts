@@ -10,11 +10,10 @@ import * as path from 'path'
   imports: [
       ConfigModule.forRoot(),
       MongooseModule.forRoot('mongodb://127.0.0.1:27017/cloud-drive'),
-      ServeStaticModule.forRoot({
-        serveRoot: '/build',
-        rootPath: path.join(__dirname, '..', '..', 'client', 'build'),
-        exclude: ['api/*']
-      }),
+    //   ServeStaticModule.forRoot({
+    //     rootPath: path.join(__dirname, '..', '..', 'client', 'build'),
+    //     exclude: ['api/*']
+    //   }),
       AuthModule,
       FileModule
   ],
