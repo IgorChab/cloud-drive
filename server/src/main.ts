@@ -8,9 +8,8 @@ async function bootstrap() {
   app.use(cookieParser())
   app.enableCors({
     credentials: true,
-    origin: ['https://chatbook.space', 'https://www.chatbook.space']
+    origin: 'https://chatbook.space'
   })
-  app.setGlobalPrefix('api')
   await app.listen(5000);
 }
 bootstrap();
