@@ -68,7 +68,8 @@ export class AuthService{
         } else {
             await this.tokenModel.updateOne({userID: payload.userID}, {tokenHash: payload.tokenHash})
         }
-        console.log(process.env.ACCESS_SECRET)
+        console.log("access_secret", process.env.ACCESS_SECRET)
+        console.log("refresh_secret", process.env.REFRESH_SECRET)
         const accessToken = this.jwtService.sign(payload, {secret: process.env.ACCESS_SECRET, expiresIn: '30m'})
         const refreshToken = this.jwtService.sign(payload, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
         console.log("accessToken ==>", accessToken)
