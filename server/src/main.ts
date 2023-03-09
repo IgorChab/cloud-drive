@@ -10,6 +10,7 @@ async function bootstrap() {
     credentials: true,
     origin: 'https://chatbook.space'
   })
+  app.setGlobalPrefix("api")
   await app.listen(5000);
 }
 bootstrap();
