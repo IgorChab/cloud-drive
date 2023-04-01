@@ -5,7 +5,7 @@ import {
     AiOutlineDelete,
     AiOutlineDownload,
     AiOutlineShareAlt,
-    AiOutlineCopy
+    AiOutlineCopy,
 } from 'react-icons/ai'
 import { MdOutlineDriveFileRenameOutline } from 'react-icons/md'
 import { useAppDispatch, useTypedSelector } from '../../hooks/redux'
@@ -104,14 +104,14 @@ export const FileCard: FC<FileCardProps> = ({ file, hideMenu }) => {
     return (
         <>
             <div
-                className='flex flex-col group cursor-pointer border rounded w-[150px] h-[166px]'
+                className='flex flex-col group cursor-pointer border rounded w-[150px] h-[150px] md:text-[12px] md:w-[110px] md:h-[110px]'
                 title={file.name}
                 onDoubleClick={openPreview}
                 onContextMenu={handleClick}
                 ref={hideMenu ? undefined : drag}
             >
-                <FileTypeImage type={file.type} size={80} path={file.path} />
-                <div className='flex items-center gap-2 border-t w-full p-[10px] group-hover:bg-slate-100'>
+                <FileTypeImage type={file.type} path={file.path} className='md:text-[50px] text-[80px]'/>
+                <div className='flex items-center gap-2 border-t w-full p-[10px] md:p-[5px] group-hover:bg-slate-100'>
                     <FileTypeImage type={file.type} />
                     <p className='whitespace-nowrap text-ellipsis overflow-hidden'>{file.name}</p>
                 </div>

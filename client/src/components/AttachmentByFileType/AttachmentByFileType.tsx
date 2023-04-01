@@ -14,17 +14,17 @@ export const AttachmentByFileType: FC = () => {
     
   return (
     <>
-        {image.includes(previewFile!.type) && <img src={`${process.env.REACT_APP_SERVER_URL}/${previewFile!.path}`} className='rounded-[4px_4px_0px_0px] object-cover' width='70%' height='70%'/>}
-        {video.includes(previewFile!.type) && <video src={`${process.env.REACT_APP_SERVER_URL}/${previewFile!.path}`} controls width='70%' height='70%'></video>}
-        {audio.includes(previewFile!.type) && <audio src={`${process.env.REACT_APP_SERVER_URL}/${previewFile!.path}`} controls></audio>}
+        {image.includes(previewFile!.type) && <img src={`${process.env.REACT_APP_STATIC_URL}/${previewFile!.path}`} className='rounded-[4px_4px_0px_0px] object-contain max-h-full min-w-full h-auto'/>}
+        {video.includes(previewFile!.type) && <video src={`${process.env.REACT_APP_STATIC_URL}/${previewFile!.path}`} controls className='object-contain max-h-full min-w-full h-auto'></video>}
+        {audio.includes(previewFile!.type) && <audio src={`${process.env.REACT_APP_STATIC_URL}/${previewFile!.path}`} controls></audio>}
         {pdf === previewFile!.type && 
-            <embed src={`${process.env.REACT_APP_SERVER_URL}/${previewFile!.path}`} type='application/pdf' width='100%' height='90%'/>
+            <embed src={`${process.env.REACT_APP_STATIC_URL}/${previewFile!.path}`} type='application/pdf' className='object-contain min-h-[110%] min-w-full'/>
         }
         {!image.includes(previewFile!.type) && !video.includes(previewFile!.type) && !audio.includes(previewFile!.type) && pdf !== previewFile!.type &&
             <div className='text-white flex flex-col gap-4 items-center justify-center bg-black/90 shadow w-[350px] h-[150px] rounded-xl'>
                 <p>Preview is not available</p>
                 <a 
-                    href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFile/${previewFile!._id}`} 
+                    href={`${process.env.REACT_APP_STATIC_URL}/files/downloadFile/${previewFile!._id}`} 
                     download 
                     className='flex items-center gap-3 bg-[#1890FF] p-2 rounded'
                 >

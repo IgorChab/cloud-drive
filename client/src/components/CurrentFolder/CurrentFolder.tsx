@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useLayoutEffect } from 'react'
 import Folder from '../Folder/Folder'
 import { FileCard } from '../FileCard/FileCard'
 import { DataList } from '../DataList/DataList'
@@ -30,14 +30,14 @@ export const CurrentFolder = () => {
                       ? <Folder file={file} key={file?._id}/>
                       : <FileCard file={file} key={file?._id}/>
                   ))
-                  : files.map((file: any) => (
+                  : files && files.map((file: any) => (
                       file.type == 'dir'
                       ? <Folder file={file} key={file?._id}/>
                       : <FileCard file={file} key={file?._id}/>
                   ))
         }
         {preview.open && preview.file &&
-            <PreviewFile />
+            <PreviewFile files={files}/>
         }
     </>
   )

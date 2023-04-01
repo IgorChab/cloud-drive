@@ -1,4 +1,4 @@
-import {Injectable, BadRequestException, ForbiddenException} from "@nestjs/common";
+import {Injectable, BadRequestException, ForbiddenException, ConsoleLogger} from "@nestjs/common";
 import * as fs from 'fs'
 import * as path from 'path'
 import {Model} from "mongoose";
@@ -31,7 +31,6 @@ export class FileService {
     }
 
     async createFolder(folderDto: FolderDto, userID){
-        console.log(folderDto)
         const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': folderDto.parentFolderId}, {'name': folderDto.parentFolderId}]})
         const folderPath = path.resolve('storage', `${folderDto.currentFolder}`, `${folderDto.folderName}`)
         const existFolder = fs.existsSync(folderPath)
@@ -61,8 +60,9 @@ export class FileService {
     async uploadFiles(files, userID, currentPath, parentFolderID){
         const uploadedFiles = await Promise.all(files.map(async (file) => {
             let originalName = file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
-            const filePath = path.join(__dirname, '../..', 'storage', currentPath, file.originalname)
 
+            const filePath = path.join(__dirname, '../..', 'storage', currentPath, file.originalname)
+            
             const fileExist = fs.existsSync(filePath)
 
             if(fileExist){
@@ -83,7 +83,7 @@ export class FileService {
             const uploadedFile = await this.fileModel.create({
                 name: originalName,
                 type: '.' + typeFileArr[typeFileArr.length - 1],
-                path: path.join('storage', currentPath, originalName),
+                path: path.join(currentPath, originalName),
                 userID: userID,
                 size: file.size,
                 shareLink: uuidv4()
@@ -101,9 +101,11 @@ export class FileService {
             return uploadedFile
         }))
         const user = await this.userModel.findById(userID)
+        const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': parentFolderID}, {'name': parentFolderID}]})
         return {
             uploadedFiles,
-            user
+            user,
+            parentFolder
         }
     }
 
@@ -199,10 +201,14 @@ export class FileService {
         const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': moveFileDto.parentFolderId}, {'name': moveFileDto.parentFolderId}]})
         if(!targetFolder.childs.includes(movingFile.id)){
 
-            fs.rename(movingFile.path, `${targetFolder.path}/${movingFile.name}`, (err) => {
+
+            fs.rename(path.join(__dirname, '../..', 'storage', movingFile.path), `${targetFolder.path}/${movingFile.name}`, (err) => {
                 console.log(err)
             })
-            movingFile.path = `${targetFolder.path}/${movingFile.name}`
+
+            let correctFolderPath = targetFolder.path.replace(path.join(__dirname, '../..',  'storage'), '')
+            
+            movingFile.path = `${correctFolderPath}/${movingFile.name}`
             targetFolder.childs.push(movingFile.id)
             targetFolder.size = targetFolder.size + movingFile.size
             parentFolder.size =  parentFolder.size - movingFile.size
@@ -211,6 +217,10 @@ export class FileService {
             await targetFolder.save()
             await parentFolder.save()
         }
-        return await this.getCurrentFolder(parentFolder.id)
+        let currentFolder = await this.getCurrentFolder(parentFolder.id)
+        return {
+            currentFolder,
+            targetFolder
+        }
     }
 }

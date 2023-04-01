@@ -98,6 +98,12 @@ export const userSlice = createSlice({
                 state.pinnedFolders.push(folder)
             }
         },
+        updatePinndedFolder: (state, {payload: folder}: PayloadAction<File>) => {
+            let index = state.pinnedFolders.findIndex(el => el._id === folder._id)
+            if(index !== -1){
+                state.pinnedFolders[index] = folder
+            }
+        },
         unpinFolder: (state, {payload: folderId}: PayloadAction<string>) => {
             state.pinnedFolders = state.pinnedFolders.filter(folder => folder._id !== folderId)
         },
@@ -145,7 +151,6 @@ export const userSlice = createSlice({
             state.filter = false
         },
         setPreviewsFile: (state, {payload: file}: PayloadAction<File>) => {
-            console.log(file)
             state.previewFile = file
         }
     }
@@ -168,7 +173,8 @@ export const {
     filterFilesByName,
     filterFilesByType,
     removeFilters,
-    setPreviewsFile
+    setPreviewsFile,
+    updatePinndedFolder
 } = userSlice.actions
 
 export default userSlice.reducer

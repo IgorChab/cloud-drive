@@ -29,9 +29,6 @@ export class File {
 
     @Prop()
     shareLink: string
-
-    @Prop()
-    tag: string
 }
 
 export const FileSchema = SchemaFactory.createForClass(File)

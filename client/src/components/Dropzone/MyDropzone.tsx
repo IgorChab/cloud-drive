@@ -35,14 +35,9 @@ const MyDropzone: FC<DropzoneProps> = ({getRootProps, isDragActive}) => {
         ref: dropRef
       })}
     >
-        <div className={`grid ${!dataList && 'grid-cols-5 2xl:grid-cols-7'} gap-3 2xl:gap-6`}>
+        <div className={`w-full sm:p-2 ${!dataList && 'flex gap-3 flex-wrap'}`}>
             <CurrentFolder/>
         </div>
-        {/* {isDragActive &&
-          <div className='absolute inset-0 flex items-end justify-center pb-[10%]'>
-            <div className={`hintUpload ${isDragActive && 'animate-bounce'}`}>Drop here to upload file</div>
-          </div>
-        } */}
         {uploadProgressModal.open && <UploadProgressModal/>}
     </div>
   )

@@ -17,24 +17,21 @@ const SearchInput = () => {
     }
 
     return (
-        <div className='flex gap-3 items-center w-full my-4'>
-            <div className='border border-[#D9D9D9] w-full flex justify-between'>
+        <div className='flex gap-3 sm:gap-2 items-center sm:justify-end sm:my-2 my-4 '>
+            <div className='border sm:border-0 border-[#D9D9D9] sm:w-[200px] sm:rounded-3xl sm:bg-white w-full flex justify-between sm:justify-end'>
                 <input
                     type='text'
                     placeholder='Search File or Folder'
-                    className='outline-none w-full p-[10px_12px] border-0'
+                    className='outline-none w-full sm:text-sm p-[10px_12px] sm:px-2 sm:py-1 border-0 sm:rounded-3xl'
                     onChange={handleSearch}
                 />
                 <div
-                    className='outline-none border-0 bg-transparent text-[#00000072] p-3 text-base flex items-center'
+                    className='outline-none border-0 bg-transparent text-[#00000072] sm:p-0 sm:pr-4 p-4 text-base flex items-center'
                 >
                     <AiOutlineSearch />
                 </div>
             </div>
-            <Button className='!p-[5px] !rounded-[50%] !min-w-[auto]'>
-                <AiOutlineFilter color={'#00000072'} size={16} cursor={'pointer'} />
-            </Button>
-            <Button className='!p-[5px] !rounded-[50%] !min-w-[auto]' onClick={() => dispatch(switchFileContainer())}>
+            <Button className='!p-[5px] !rounded-[50%] sm:!bg-white !min-w-[auto]' onClick={() => dispatch(switchFileContainer())}>
                 {dataList
                     ? <TbGridDots color='#00000072' size={16} cursor='pointer' />
                     : <AiOutlineUnorderedList color='#00000072' size={16} cursor='pointer' />

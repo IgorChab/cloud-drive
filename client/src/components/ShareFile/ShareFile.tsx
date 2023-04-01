@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import {Button, Breadcrumbs, makeStyles} from '@material-ui/core'
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Folder from '../Folder/Folder'
 import { FileCard } from '../FileCard/FileCard'
 import { DataList } from '../DataList/DataList'
 import {TbGridDots} from 'react-icons/tb'
 import {AiOutlineUnorderedList} from "react-icons/ai";
 import axios from 'axios'
-import {useParams} from 'react-router-dom'
+import {useParams, Link} from 'react-router-dom'
 import {File} from '../../interfaces/user.interface'
 import { AiOutlineDownload } from 'react-icons/ai'
 
@@ -43,7 +44,7 @@ export const ShareFile = () => {
         files: File[]
     }
 
-    const getShareFile = (id: string | undefined) => {
+    const getShareFile = () => {
         axios.get<ShareFileResponse>(`${process.env.REACT_APP_SERVER_URL}/files/shareFiles/${link}`).then(res => {
             setFiles(res.data.files)
             setRootFolder(res.data.currentFolder)
@@ -54,7 +55,7 @@ export const ShareFile = () => {
     }
 
     useEffect(() => {
-        getShareFile(link)
+        getShareFile()
     }, [])
 
     const getCurrentFolder = (folder: File) => {
@@ -67,7 +68,7 @@ export const ShareFile = () => {
 
     const getRootFolder = () => {
         setFolderStack([])
-        getShareFile(link)
+        getShareFile()
     }
     
     const closeFolder = (folder: File) => {
@@ -79,22 +80,33 @@ export const ShareFile = () => {
         }
     }
 
+    const media = useMediaQuery('(max-width:600px)');
+
+    const close = () => {
+        if(currentFolder && folderStack.length !== 1){
+            closeFolder(folderStack[folderStack.length - 2])
+        } else {
+            getRootFolder()
+        }
+    }
+
   return (
     <div>
-        <div className='text-[#1890FF] font-medium text-lg w-full p-5 shadow-md'>
-            Virtual Drive
+        <div className='text-[#1890FF] font-medium text-lg w-full sm:p-3 p-5 shadow-md'>
+            <Link to={'/'}>Virtual Drive</Link>
         </div>
         {!err && 
             <>
-                <div className='font-medium text-lg w-full p-[15px_20px] border-b border-b-slate-400 flex justify-between items-center'>
+                <div className='font-medium sm:text-black text-lg w-full p-[15px_20px] sm:p-[5px_10px] border-b border-b-slate-400 flex justify-between items-center'>
                     <Breadcrumbs maxItems={4} itemsBeforeCollapse={2} itemsAfterCollapse={2} classes={{ol: classes.ol}}>
-                        <p 
-                            className={`font-medium text-[24px] ${folderStack.length == 0? 'text-black' : 'cursor-pointer hover:underline'}`}
+                        <div 
+                            className={`font-medium text-[24px] flex items-center gap-2 md:text-base ${folderStack.length === 0? 'text-black' : 'cursor-pointer hover:underline sm:text-black sm:cursor-default sm:hover:no-underline'}`}
                             onClick={() => getRootFolder()}
                         >
-                            {rootFolder?.name}
-                        </p>
-                        {folderStack.map((folder, i: number) => (
+                            {(folderStack.length !== 0 && media) && <p className='cursor-pointer' onClick={close}>🡠</p>}
+                            {media? currentFolder?.name : rootFolder?.name}
+                        </div>
+                        {!media && folderStack.map((folder, i: number) => (
                             <div 
                                 className={`${i == folderStack.length - 1? 'text-black' : 'cursor-pointer hover:underline'} whitespace-nowrap text-ellipsis overflow-hidden`}
                                 onClick={() => closeFolder(folder)} 
@@ -105,7 +117,7 @@ export const ShareFile = () => {
                         ))}
                     </Breadcrumbs>
                     <div className='flex items-center'>
-                        <Button color='primary'>
+                        <Button color='primary' className='md:!text-sm'>
                             <a 
                                 href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFolder/${currentFolder?._id}`} 
                                 download
@@ -114,35 +126,35 @@ export const ShareFile = () => {
                             </a>
                         </Button>
                         <Button onClick={handleDataList}>
-                            {dataList? <TbGridDots size={24}/> : <AiOutlineUnorderedList size={24}/>}
+                            {dataList? <TbGridDots className='text-2xl md:text-xl'/> : <AiOutlineUnorderedList className='text-2xl md:text-xl'/>}
                         </Button>
                     </div>
                 </div>
-                <div className={`${!dataList && `flex gap-10`} w-full px-[100px] py-[50px]`}>
+                <div className={`${!dataList? 'flex flex-wrap gap-10 px-[100px] md:px-[30px] py-[50px] md:py-[20px]' : 'w-full px-[100px] py-[50px] md:px-2 md:py-3'}`}>
                     {dataList
                         ?   <DataList files={files} handleOpenShareFolder={getCurrentFolder}/> 
                         :   files.map((file) => (
                                 file.type == 'dir'
                                 ? 
-                                    <div key={file?._id} className='relative w-[150px] h-[166px] select-none' onDoubleClick={() => getCurrentFolder(file)}>
+                                    <div key={file?._id} className='relative w-[150px] h-[150px] md:text-[12px] md:w-[110px] md:h-[110px] select-none' onDoubleClick={() => getCurrentFolder(file)}>
                                         <Folder file={file} hideMenu/>
                                         <a 
                                             href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFolder/${file._id}`} 
                                             download
                                         >
-                                            <div className='bg-slate-400 flex items-center justify-center rounded-full w-6 h-6 !absolute !top-3 !right-2 cursor-pointer'>
+                                            <div className='bg-slate-400 flex items-center justify-center rounded-full w-6 h-6 !absolute !top-1 !right-1 cursor-pointer'>
                                                 <AiOutlineDownload size={16} color='#fff'/>
                                             </div>
                                         </a>
                                     </div>
                                 : 
-                                    <div key={file?._id} className='relative select-none'>
+                                    <div key={file?._id} className='relative w-[150px] h-[150px] md:text-[12px] md:w-[110px] md:h-[110px] select-none'>
                                         <FileCard file={file} key={file?._id} hideMenu/>
                                         <a 
                                             href={`${process.env.REACT_APP_SERVER_URL}/files/downloadFile/${file._id}`} 
                                             download
                                         >
-                                            <div className='bg-slate-400 flex items-center justify-center rounded-full w-6 h-6 !absolute !top-3 !right-3 cursor-pointer'>
+                                            <div className='bg-slate-400 flex items-center justify-center rounded-full w-6 h-6 !absolute !top-1 !right-1 cursor-pointer'>
                                                 <AiOutlineDownload size={16} color='#fff'/>
                                             </div>
                                         </a>
@@ -158,7 +170,7 @@ export const ShareFile = () => {
             </div>
         }
         {preview.open && preview.file &&
-            <PreviewFile/>
+            <PreviewFile files={files}/>
         }
     </div>
   )

@@ -114,15 +114,15 @@ const Folder: FC<Props> = ({file, hideMenu}) => {
     return (
         <>
             <div
-                className='cursor-pointer flex flex-col items-center'
+                className='cursor-pointer flex flex-col items-center w-[120px] h-[150px] md:text-[12px] md:w-[110px] md:h-[110px]'
                 ref={(node) => hideMenu? undefined : drag(drop(node))}
                 title={file.name}
                 onContextMenu={handleClick}
                 onDoubleClick={handleDoubleClick}
             >
-                <FcFolder size={100} color={'red'}/>
-                <div className='flex items-center flex-col text-base mt-[-10px]'>
-                    <p className='font-medium text-lg text-black/[85%] whitespace-nowrap text-ellipsis overflow-hidden w-[100px] text-center'>{file.name}</p>
+                <FcFolder className='text-[100px] md:[70px]'/>
+                <div className='flex items-center flex-col md:text-sm text-base mt-[-10px]'>
+                    <p className='font-medium text-lg md:text-base text-black/[85%] whitespace-nowrap text-ellipsis overflow-hidden w-[100px] text-center'>{file.name}</p>
                     <p className='text-black/[45%] font-bold'>{file.childs.length} Items</p>
                     <p className='font-bold text-black/[25%] capitalize'>{formatBytes(file.size)}</p>
                 </div>

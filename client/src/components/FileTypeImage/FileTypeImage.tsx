@@ -62,21 +62,22 @@ interface FileTypeProps {
     type: string
     size?: number
     path?: string
+    className?: string
 }
 
-export const FileTypeImage: FC<FileTypeProps> = ({type, size, path}) => {
+export const FileTypeImage: FC<FileTypeProps> = ({type, size, path, className}) => {
     const t = types.find(el => el.type.includes(type))
     return (
         path && (image.includes(type))
         ? <>
             {image.includes(type) && 
-                <div className='flex h-full'>
-                    <img src={`${process.env.REACT_APP_SERVER_URL}/${path}`} className='rounded-[4px_4px_0px_0px] object-cover'/>
+                <div className='flex h-full overflow-hidden'>
+                    <img src={`${process.env.REACT_APP_STATIC_URL}/${path}`} className='rounded-[4px_4px_0px_0px] object-fill w-full h-auto' />
                 </div>
             }
         </>
         : <div className='flex items-center justify-center h-full'>
-            {React.cloneElement(t?.component? t.component : <AiFillFileUnknown size={16} color='#82E0AA'/>, {size: size, className: 'shrink-0'})}
+            {React.cloneElement(t?.component? t.component : <AiFillFileUnknown size={16} color='#82E0AA'/>, {size: size, className: `shrink-0 ${className}`})}
         </div>
     )
 }

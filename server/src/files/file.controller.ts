@@ -21,7 +21,6 @@ export class FileController {
     @UseInterceptors(FilesInterceptor('files'))
     async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Req() req){
         const uploaded = await this.fileService.uploadFiles(files, req.userID, req.body.currentPath, req.body.currentFolderID)
-        console.log(uploaded)
         return uploaded
     }
 
@@ -39,7 +38,7 @@ export class FileController {
 
     @Post('renameFile')
     @UseGuards(AuthGuard)
-    async deleteFolder(@Body() renameFileDto: {newName: string, fileID: string}) {
+    async renameFile(@Body() renameFileDto: {newName: string, fileID: string}) {
         console.log(renameFileDto)
         this.fileService.renameFile(renameFileDto)
     }

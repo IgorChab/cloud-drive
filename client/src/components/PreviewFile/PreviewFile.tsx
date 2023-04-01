@@ -14,13 +14,17 @@ import { AiOutlineDownload } from 'react-icons/ai'
 import { FileTypeImage } from '../../components/FileTypeImage/FileTypeImage'
 import { AttachmentByFileType } from '../AttachmentByFileType/AttachmentByFileType'
 
-export const PreviewFile: FC = () => {
+interface PreviewFileProps {
+    files: File[]
+}
+
+export const PreviewFile: FC<PreviewFileProps> = ({files}) => {
 
     const dispatch = useAppDispatch()
 
     const previewFile = useTypedSelector(state => state.appInfo.previewFile)
 
-    const files = useTypedSelector(state => state.appInfo.files)
+    // const files = useTypedSelector(state => state.appInfo.files)
 
     const [filesWithoutFolders, setFilesWithoutFolders] = useState<File[] | []>([])
 
@@ -47,16 +51,13 @@ export const PreviewFile: FC = () => {
         const currentFileIndex: number = filesWithoutFolders.findIndex(el => el._id === previewFile!._id)
         const nextFileIndex = currentFileIndex === filesWithoutFolders.length - 1 ? 0 : currentFileIndex + 1
         const newPreviewFile = filesWithoutFolders[nextFileIndex]
-        console.log('currentFileIndex', currentFileIndex)
-        console.log('nextFileIndex', nextFileIndex)
-        console.log('newPreviewFile', newPreviewFile)
         dispatch(setPreviewsFile(newPreviewFile))
     }
 
     return (
-        <div className='absolute inset-0 bg-black/80 z-50 px-5'>
-            <div className='flex flex-col w-full h-full relative'>
-                <div className='flex h-[70px] items-center justify-between w-full absolute'>
+        <div className='absolute inset-0 bg-black/80 z-50 select-none'>
+            <div className='w-full h-full'>
+                <div className='flex h-[70px] px-5 items-center justify-between w-full absolute'>
                     <div className='flex items-center gap-3'>
                         <HiOutlineArrowLeft onClick={closePreview} color='#fff' cursor='pointer' size={20} title='Close' />
                         <FileTypeImage type={previewFile!.type} size={20} />
@@ -74,7 +75,7 @@ export const PreviewFile: FC = () => {
                         <AiOutlineDownload color='#fff' cursor='pointer' size={20} title='Download' />
                     </a>
                 </div>
-                <div className='flex justify-between items-center h-full'>
+                <div className='flex px-5 justify-between items-center h-full'>
                     <div
                         title='Previous'
                         className='w-[50px] h-[50px] flex items-center justify-center rounded-full bg-black/90 hover:bg-[#1890FF] transition cursor-pointer'
@@ -82,7 +83,9 @@ export const PreviewFile: FC = () => {
                     >
                         <IoIosArrowBack className='text-white group-hover:text-[#1890FF]' />
                     </div>
-                    <AttachmentByFileType />
+                    <div className='flex items-center justify-center h-[80%] w-[80%]'>
+                        <AttachmentByFileType />
+                    </div>
                     <div
                         title='Next'
                         className='w-[50px] h-[50px] flex items-center justify-center rounded-full bg-black/90 hover:bg-[#1890FF] transition cursor-pointer'

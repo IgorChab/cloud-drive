@@ -2,7 +2,7 @@
     @apply w-full h-full flex items-center justify-center bg-[#43A5FF]
 }
 .form{
-    @apply flex flex-col gap-[15px] p-[30px] w-[450px]
+    @apply flex flex-col gap-[15px] p-[30px] xs:p-5 w-[450px] xs:w-[390px]
 }
 
 .formTitle{

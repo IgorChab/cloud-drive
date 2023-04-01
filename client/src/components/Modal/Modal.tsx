@@ -59,7 +59,7 @@ const Modal: FC = () => {
         onClick={handleCloseModal} 
         onSubmitCapture={createFolder}
     >
-        <Paper className='w-[350px] p-4 rounded' onClick={e => e.stopPropagation()}>
+        <Paper className='w-[350px] sm:w-[300px] p-4 rounded' onClick={e => e.stopPropagation()}>
             <p className="font-medium">{modal.type == 'rename'? 'Rename' : 'Folder Name'}</p>
             <TextField 
                 autoFocus
