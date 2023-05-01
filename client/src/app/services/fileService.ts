@@ -1,6 +1,5 @@
 import $axios from "../http";
 import {addFile, setFiles, deleteFile, renameFile, setUser, updatePinndedFolder} from '../../features/user/userSlice'
-import { openUploadProgressModal, updateStatusProgressModal} from '../../features/events/eventSlice'
 import { store } from "../store";
 import {File, User} from '../../interfaces/user.interface'
 
@@ -39,9 +38,10 @@ class FileService {
     }
 
     static async deleteFile(deleteFileDto: deleteFileDto){
-        const response = await $axios.post<User>(`files/deleteFile`, deleteFileDto)
+        const response = await $axios.post<{user: User, parentFolder: File}>(`files/deleteFile`, deleteFileDto)
         store.dispatch(deleteFile(deleteFileDto.id))
-        store.dispatch(setUser(response.data))
+        store.dispatch(setUser(response.data.user))
+        store.dispatch(updatePinndedFolder(response.data.parentFolder))
     }
 
     static async createFolder(folderDto: folderCreationDto): Promise<File>{

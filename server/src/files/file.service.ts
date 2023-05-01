@@ -110,7 +110,6 @@ export class FileService {
     }
 
     async deleteFile(deleteFileDto: {id: string, parentFolderID: string}){
-        console.log(deleteFileDto)
         const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': deleteFileDto.parentFolderID}, {'name': deleteFileDto.parentFolderID}]})
         parentFolder.childs = parentFolder.childs.filter(fileID => fileID != deleteFileDto.id)
 
@@ -129,11 +128,14 @@ export class FileService {
         parentFolder.size = parentFolder.size - file.size
         parentFolder.save()
 
-        fs.rm(file.path, {recursive: true}, err => {
+        fs.rm(path.join(__dirname, '../..', 'storage', file.path), {recursive: true}, err => {
             console.log(err)
         })
 
-        return user
+        return {
+            user, 
+            parentFolder
+        }
     }
 
     async renameFile(renameFileDto: {newName: string, fileID: string}){
@@ -153,7 +155,7 @@ export class FileService {
 
     async downloadFile(fileID: string){
         const file = await this.fileModel.findOne({ $or:[ {'_id': fileID}, {'name': fileID}]})
-        const filePath = path.resolve(process.cwd(), file.path)
+        const filePath = path.join(__dirname, '../..', 'storage', file.path)
 
         return filePath
     }
