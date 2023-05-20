@@ -33,8 +33,8 @@ const SearchInput = () => {
             </div>
             <Button className='!p-[5px] !rounded-[50%] sm:!bg-white !min-w-[auto]' onClick={() => dispatch(switchFileContainer())}>
                 {dataList
-                    ? <TbGridDots color='#00000072' size={16} cursor='pointer' />
-                    : <AiOutlineUnorderedList color='#00000072' size={16} cursor='pointer' />
+                    ? <TbGridDots color='#00000072' size={22} cursor='pointer' />
+                    : <AiOutlineUnorderedList color='#00000072' size={22} cursor='pointer' />
                 }
             </Button>
         </div>

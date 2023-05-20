@@ -29,6 +29,7 @@ const RightSidebar = () => {
     })
 
     const handleLogout = () => {
+        localStorage.clear()
         dispatch(logout());
         AuthService.logout(user!._id)
     }

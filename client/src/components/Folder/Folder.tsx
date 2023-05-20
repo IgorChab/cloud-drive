@@ -3,7 +3,7 @@ import {FcFolder} from "react-icons/fc";
 import {Menu, MenuItem, makeStyles, Snackbar, Slide, SlideProps, SnackbarContent} from "@material-ui/core";
 import {useDrag} from 'react-dnd'
 import {useDrop} from 'react-dnd'
-import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineTags, AiOutlineCopy} from 'react-icons/ai'
+import {AiOutlineDelete, AiOutlineDownload, AiOutlineShareAlt, AiOutlineCopy} from 'react-icons/ai'
 import {MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {useAppDispatch, useTypedSelector} from '../../hooks/redux'
 import {openModal, setCurrentFile} from '../../features/events/eventSlice'
@@ -153,10 +153,6 @@ const Folder: FC<Props> = ({file, hideMenu}) => {
                         <MenuItem className={classes.root} onClick={renameBtnClick}>
                             <MdOutlineDriveFileRenameOutline/>
                             Rename
-                        </MenuItem>
-                        <MenuItem className={classes.root}>
-                            <AiOutlineTags/>
-                            Add tag
                         </MenuItem>
                         <MenuItem className={classes.root} onClick={shareBtnClick}>
                             <AiOutlineShareAlt/>

@@ -151,7 +151,7 @@ const Main = () => {
                                 <p>Create folder</p>
                             </div>
                         </MenuItem>
-                        <MenuItem>
+                        <MenuItem onClick={() => {handleClose()}}>
                             <label htmlFor='uploadFile' className='flex gap-[10px] cursor-pointer items-center'>
                                 <div className='flex items-center gap-2'>
                                     <AiOutlineCloudUpload />

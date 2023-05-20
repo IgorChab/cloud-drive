@@ -44,7 +44,7 @@ export const UploadProgressModal: FC = () => {
                         <div className='flex items-center justify-between gap-2'>
                             <div className='flex items-center gap-2'>
                                 <FileTypeImage type={`.${file.name.split('.')[file.name.split('.').length - 1]}`}/>
-                                <p>{file.name}</p>
+                                <p className='w-[250px] text-ellipsis overflow-hidden whitespace-nowrap'>{file.name}</p>
                             </div>
                             {uploadInfo.status == 'loading' && <AiOutlineLoading className='animate-spin text-blue-400' size={24}/>}
                             {uploadInfo.status == 'success' && <AiFillCheckCircle size={24} className='text-green-500'/>}

@@ -1,4 +1,4 @@
-import {Injectable, BadRequestException, ForbiddenException, ConsoleLogger} from "@nestjs/common";
+import {Injectable, BadRequestException} from "@nestjs/common";
 import * as fs from 'fs'
 import * as path from 'path'
 import {Model} from "mongoose";
@@ -23,7 +23,7 @@ export class FileService {
             name: userID,
             type: 'dir',
             userID: userID,
-            path: rootPath,
+            path: userID,
         })
         fs.mkdir(path.resolve(__dirname, '../..', 'storage', `${userID}`),(err) => {
             console.log(err)
@@ -47,7 +47,7 @@ export class FileService {
             name: folderDto.folderName,
             type: 'dir',
             userID: userID,
-            path: folderPath,
+            path: path.join(folderDto.currentFolder, folderDto.folderName),
             shareLink: uuidv4()
         })
     
@@ -109,39 +109,41 @@ export class FileService {
         }
     }
 
-    async deleteFile(deleteFileDto: {id: string, parentFolderID: string}){
-        const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': deleteFileDto.parentFolderID}, {'name': deleteFileDto.parentFolderID}]})
-        parentFolder.childs = parentFolder.childs.filter(fileID => fileID != deleteFileDto.id)
+async deleteFile(deleteFileDto: {id: string, parentFolderID: string}){
+    const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': deleteFileDto.parentFolderID}, {'name': deleteFileDto.parentFolderID}]})
+    parentFolder.childs = parentFolder.childs.filter(fileID => fileID != deleteFileDto.id)
 
-        const file = await this.fileModel.findByIdAndDelete(deleteFileDto.id)
-        file.childs.forEach(async id => {
-            await this.fileModel.findByIdAndDelete(id)
-        })
+    const file = await this.fileModel.findByIdAndDelete(deleteFileDto.id)
+    file.childs.forEach(async id => {
+        await this.fileModel.findByIdAndDelete(id)
+    })
 
-        const user = await this.userModel.findById(file.userID)
-        if(user.usedSpace - file.size < 0){
-            user.usedSpace = 0
-        } else {
-            user.usedSpace = user.usedSpace - file.size
-        }
-        user.save()
-        parentFolder.size = parentFolder.size - file.size
-        parentFolder.save()
-
-        fs.rm(path.join(__dirname, '../..', 'storage', file.path), {recursive: true}, err => {
-            console.log(err)
-        })
-
-        return {
-            user, 
-            parentFolder
-        }
+    const user = await this.userModel.findById(file.userID)
+    if(user.usedSpace - file.size < 0){
+        user.usedSpace = 0
+    } else {
+        user.usedSpace = user.usedSpace - file.size
     }
+    user.save()
+    parentFolder.size = parentFolder.size - file.size
+    parentFolder.save()
+
+    fs.rm(path.join(__dirname, '../..', 'storage', file.path), {recursive: true}, err => {
+        console.log(err)
+    })
+
+    return {
+        user, 
+        parentFolder
+    }
+}
 
     async renameFile(renameFileDto: {newName: string, fileID: string}){
         const file =  await this.fileModel.findById(renameFileDto.fileID)
         const newPath = file.path.slice(0, file.path.indexOf(file.name)) + renameFileDto.newName
-        fs.rename(file.path, newPath, err => {
+        const correctNewPath = path.join(__dirname, '../..', 'storage', newPath)
+        const oldPath = path.join(__dirname, '../..', 'storage', file.path)
+        fs.rename(oldPath, correctNewPath, err => {
             console.log(err)
         })
         file.path = newPath
@@ -162,10 +164,8 @@ export class FileService {
     
     async downloadFolder(folderID: string){
         const file = await this.fileModel.findOne({ $or:[ {'_id': folderID}, {'name': folderID}]})
-        const filePath = path.resolve(process.cwd(), file.path)
-
+        const filePath = path.join(__dirname, '../..', 'storage', file.path)
         const output = fs.createWriteStream(filePath);
-
         const archive = archiver('zip');
 
         output.on('close', function () {
@@ -178,9 +178,7 @@ export class FileService {
         });
         
         archive.pipe(output);
-        
         archive.directory(filePath, false);
-        
         archive.finalize();
 
         return {fileName: file.name, stream: archive}
@@ -201,10 +199,12 @@ export class FileService {
         const movingFile = await this.fileModel.findById(moveFileDto.movingFileId)
         const targetFolder = await this.fileModel.findOne({ $or:[ {'_id': moveFileDto.targetFolderId}, {'name': moveFileDto.targetFolderId}]})
         const parentFolder = await this.fileModel.findOne({ $or:[ {'_id': moveFileDto.parentFolderId}, {'name': moveFileDto.parentFolderId}]})
+        const movingFilePath = path.join(__dirname, '../..', 'storage', movingFile.path)
+        const destinationFolderPath = path.join(__dirname, '../..', 'storage', targetFolder.path, movingFile.name)
         if(!targetFolder.childs.includes(movingFile.id)){
 
 
-            fs.rename(path.join(__dirname, '../..', 'storage', movingFile.path), `${targetFolder.path}/${movingFile.name}`, (err) => {
+            fs.rename(movingFilePath, destinationFolderPath, (err) => {
                 console.log(err)
             })
 
